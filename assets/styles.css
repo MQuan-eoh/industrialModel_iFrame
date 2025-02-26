@@ -174,13 +174,22 @@ body {
 /* Styling for the drawn lines */
 .drawn-line {
   position: absolute;
-  height: 2px;
+  height: 4px;
   background-color: #0066cc;
   pointer-events: none;
 }
 
-/* Active state for the draw button */
-#drawLineBtn.active {
+/* Style for selected lines */
+.drawn-line.selected {
+  background-color: #ff5722;
+  height: 6px;
+  box-shadow: 0 0 5px rgba(255, 87, 34, 0.7);
+  z-index: 11;
+}
+
+/* Active state for buttons */
+#drawLineBtn.active,
+#selectLineBtn.active {
   background-color: #0056b3;
   color: white;
 }
@@ -203,6 +212,12 @@ body {
   animation: flowingWater 2s linear infinite;
   height: 3px;
   box-shadow: 0 0 5px #4da6ff;
+}
+
+/* Hover effect for lines in select mode */
+.drawn-line:hover {
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0, 102, 204, 0.7);
 }
 
 /* Styling for the model container */

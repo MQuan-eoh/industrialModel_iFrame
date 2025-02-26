@@ -83,10 +83,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const pumpImage = document.querySelector(".imgPump");
 
   let isDrawing = false;
+  let isSelectMode = false;
   let startX, startY;
   let lines = [];
   let currentLine = null;
   let isCtrlPressed = false;
+  let selectedLines = [];
+  const dropdownMenu = document.querySelector(".dropdown-menu");
+
+  const selectLineBtn = document.getElementById("selectLineBtn");
+  dropdownMenu.appendChild(selectLineBtn);
+
+  const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+  dropdownMenu.appendChild(deleteSelectedBtn);
 
   // Load saved lines from localStorage
   function loadLines() {
@@ -100,9 +109,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Render all lines from the lines array
   function renderLines() {
     linesContainer.innerHTML = "";
-    lines.forEach((line) => {
+    lines.forEach((line, index) => {
       const lineElement = document.createElement("div");
       lineElement.className = "drawn-line";
+      lineElement.dataset.index = index;
+
+      // Add selected class if the line is selected
+      if (selectedLines.includes(index)) {
+        lineElement.classList.add("selected");
+      }
 
       // Calculate line properties
       const length = Math.sqrt(
@@ -120,6 +135,24 @@ document.addEventListener("DOMContentLoaded", function () {
       lineElement.style.transform = `rotate(${angle}deg)`;
       lineElement.style.transformOrigin = "0 0";
 
+      // Make lines selectable when in select mode
+      if (isSelectMode) {
+        lineElement.style.pointerEvents = "auto";
+        lineElement.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const lineIndex = parseInt(this.dataset.index);
+
+          // Toggle selection
+          if (selectedLines.includes(lineIndex)) {
+            selectedLines = selectedLines.filter((i) => i !== lineIndex);
+          } else {
+            selectedLines.push(lineIndex);
+          }
+
+          renderLines();
+        });
+      }
+
       linesContainer.appendChild(lineElement);
     });
   }
@@ -127,21 +160,54 @@ document.addEventListener("DOMContentLoaded", function () {
   // Save lines to localStorage
   function saveLines() {
     localStorage.setItem("dashboardLines", JSON.stringify(lines));
-    alert("Lines saved successfully!");
+    // alert("Lines saved successfully!");
+  }
+
+  // Delete selected lines
+  function deleteSelected() {
+    if (selectedLines.length === 0) {
+      alert("No lines selected. Please select lines to delete.");
+      return;
+    }
+
+    // Sort indices in descending order to avoid shifting issues when removing
+    selectedLines.sort((a, b) => b - a);
+
+    // Remove selected lines
+    selectedLines.forEach((index) => {
+      lines.splice(index, 1);
+    });
+
+    // Clear selection and re-render
+    selectedLines = [];
+    renderLines();
+
+    // Automatically save after deletion
+    saveLines();
   }
 
   // Activate drawing mode
   drawLineBtn.addEventListener("click", function () {
-    isDrawing = !isDrawing;
-
-    if (isDrawing) {
-      drawLineBtn.classList.add("active");
-      modelContainer.style.cursor = "crosshair";
-    } else {
-      drawLineBtn.classList.remove("active");
-      modelContainer.style.cursor = "default";
-    }
+    isDrawing = true;
+    isSelectMode = false;
+    drawLineBtn.classList.add("active");
+    selectLineBtn.classList.remove("active");
+    modelContainer.style.cursor = "crosshair";
+    renderLines();
   });
+
+  // Activate select mode
+  selectLineBtn.addEventListener("click", function () {
+    isSelectMode = true;
+    isDrawing = false;
+    selectLineBtn.classList.add("active");
+    drawLineBtn.classList.remove("active");
+    modelContainer.style.cursor = "pointer";
+    renderLines();
+  });
+
+  // Delete selected lines
+  deleteSelectedBtn.addEventListener("click", deleteSelected);
 
   // Save lines to localStorage
   saveLinesBtn.addEventListener("click", saveLines);
@@ -150,6 +216,10 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("keydown", function (e) {
     if (e.key === "Control") {
       isCtrlPressed = true;
+    }
+    // Add delete key support
+    if (e.key === "Delete" && selectedLines.length > 0) {
+      deleteSelected();
     }
   });
 
@@ -161,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle mouse events for drawing
   modelContainer.addEventListener("mousedown", function (e) {
-    if (!isDrawing) return;
+    if (!isDrawing || isSelectMode) return;
 
     const rect = modelContainer.getBoundingClientRect();
     startX = e.clientX - rect.left;
@@ -176,7 +246,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   modelContainer.addEventListener("mousemove", function (e) {
-    if (!isDrawing || !currentLine) return;
+    if (!isDrawing || !currentLine || isSelectMode) return;
 
     const rect = modelContainer.getBoundingClientRect();
     let currentX = e.clientX - rect.left;
@@ -210,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   modelContainer.addEventListener("mouseup", function (e) {
-    if (!isDrawing || !currentLine) return;
+    if (!isDrawing || !currentLine || isSelectMode) return;
 
     const rect = modelContainer.getBoundingClientRect();
     let endX = e.clientX - rect.left;
@@ -238,7 +308,21 @@ document.addEventListener("DOMContentLoaded", function () {
       endY: endY,
     });
 
+    // Re-render all lines
+    renderLines();
+
     currentLine = null;
+  });
+
+  // Clear selection when clicking on the container (but not on a line)
+  modelContainer.addEventListener("click", function (e) {
+    if (
+      (isSelectMode && e.target === modelContainer) ||
+      e.target === linesContainer
+    ) {
+      selectedLines = [];
+      renderLines();
+    }
   });
 
   // Add water flow effect when pump is clicked
