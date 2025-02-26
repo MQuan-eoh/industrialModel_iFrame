@@ -1,14 +1,23 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #1e1e1e;
-  color: #fff;
+  color: rgb(255, 255, 255, 0.87);
+  backdrop-filter: blur(40px);
+  background-image: url(img/must1.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 .card {
-  background-color: #2b2b2b;
+  background: linear-gradient(
+    180deg,
+    rgba(22, 24, 32, 0.5) 0%,
+    rgba(32, 34, 42, 0.7) 100%
+  ) !important;
   border-radius: 10px;
   margin: 10px;
   padding: 20px;
+  border: none !important;
 }
 .card img {
   width: 100%;
@@ -16,6 +25,7 @@ body {
 }
 .card h3 {
   margin-top: 0;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 .gauge {
   display: flex;
@@ -60,4 +70,85 @@ body {
 }
 .status .stopped {
   background-color: red;
+}
+
+/*=========Model===============*/
+.model-container {
+  position: relative;
+}
+.tank {
+  position: relative;
+  width: 100px;
+  height: 200px;
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.water {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 0;
+  background-color: #0ec3ff;
+  transition: height 1s ease-in-out;
+}
+.ruler {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  width: 20px;
+  background: linear-gradient(to bottom, transparent 10%, #ccc 10%);
+  background-size: 100% 20px;
+}
+.level-text {
+  font-size: 20px;
+  color: #ff9500;
+  margin-bottom: 10px;
+}
+.markers {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 5px;
+  box-sizing: border-box;
+  z-index: 10;
+  color: rgb(241, 248, 255);
+}
+.marker {
+  font-size: 10px;
+  color: #ffffff;
+  text-align: left;
+}
+.model-container img.imgPump {
+  position: absolute;
+  max-width: 80px;
+  max-height: 70px;
+  right: 100px;
+  top: 50px;
+  cursor: move;
+}
+.model-container img.imgAnalog {
+  position: absolute;
+  max-width: 70px;
+  max-height: 100px;
+  right: 100px;
+  top: 170px;
+  cursor: move;
+}
+#Pillbottle path {
+  stroke-dasharray: 150;
+  stroke-dashoffset: 150;
+  animation: flow-animation 2s linear infinite;
+}
+
+@keyframes flow-animation {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
