@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -12,16 +13,13 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   </head>
   <body>
     <div class="container-fluid">
       <div class="row">
         <div class="col-md-3">
           <div class="card">
-            <h3>OEE</h3>
+            <h2>OEE</h2>
             <div class="gauge">
               <span> 56.6% </span>
             </div>
@@ -29,7 +27,7 @@
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h3>Performance</h3>
+            <h2>Performance</h2>
             <div class="gauge">
               <span> 72.6% </span>
             </div>
@@ -37,7 +35,7 @@
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h3>Quality</h3>
+            <h2>Quality</h2>
             <div class="gauge">
               <span> 80.0% </span>
             </div>
@@ -45,7 +43,7 @@
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h3>Availability</h3>
+            <h2>Availability</h2>
             <div class="gauge">
               <span> 97.4% </span>
             </div>
@@ -55,7 +53,7 @@
       <div class="row">
         <div class="col-md-12">
           <div class="card">
-            <h3>Machine state</h3>
+            <h2>Machine state</h2>
             <p>machineinfo_machinestate_state_machinemode</p>
             <div class="timeline">
               <div>09:48:30</div>
@@ -81,7 +79,7 @@
       <div class="row">
         <div class="col-md-4">
           <div class="card">
-            <h3>Production quality</h3>
+            <h2>Production quality</h2>
             <div class="chart">
               <img
                 alt="Pie chart showing production quality with good and bad parts"
@@ -96,13 +94,13 @@
         </div>
         <div class="col-md-4">
           <div class="card">
-            <h3>GUID Running order</h3>
+            <h2>GUID Running order</h2>
             <p>966e582b-02a6-4fdd-88bb-d908674b6c05</p>
           </div>
         </div>
         <div class="col-md-4">
           <div class="card">
-            <h3>Product weight</h3>
+            <h2>Product weight</h2>
             <div class="chart">
               <img
                 alt="Bar chart showing product weight distribution"
@@ -117,14 +115,32 @@
       <div class="row">
         <div class="col-md-4">
           <div class="card">
-            <h3>Product group</h3>
+            <h2>Product group</h2>
             <p>Black</p>
           </div>
         </div>
         <div class="col-md-8">
           <div class="card">
-            <h3>Model</h3>
+            <h2>Model</h2>
             <div class="model-container">
+              <div class="draw-menu">
+                <button
+                  class="btn btn-primary dropdown-toggle"
+                  type="button"
+                  data-toggle="dropdown"
+                >
+                  Drawing Tools
+                </button>
+                <div class="dropdown-menu">
+                  <button class="dropdown-item" id="drawLineBtn">
+                    Draw Line
+                  </button>
+                  <button class="dropdown-item" id="saveLinesBtn">
+                    Save Lines
+                  </button>
+                </div>
+              </div>
+              <div class="lines-container"></div>
               <div class="level-text" id="level-text">15000L</div>
               <div class="tank">
                 <div class="ruler"></div>
@@ -149,13 +165,30 @@
                 alt="symbolIcons"
               />
               <img src="assets/img/Analoggauge.png" class="imgAnalog" />
+              <div class="tank tank-2">
+                <div class="ruler"></div>
+                <div class="markers">
+                  <div class="marker">100%</div>
+                  <div class="marker">90%</div>
+                  <div class="marker">80%</div>
+                  <div class="marker">70%</div>
+                  <div class="marker">60%</div>
+                  <div class="marker">50%</div>
+                  <div class="marker">40%</div>
+                  <div class="marker">30%</div>
+                  <div class="marker">20%</div>
+                  <div class="marker">10%</div>
+                  <div class="marker">0%</div>
+                </div>
+                <div class="water" id="water"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="script.js"></script>
   </body>
