@@ -11,9 +11,24 @@ setInterval(() => {
   waterPump(randomLevel);
 }, 1000);
 
+function saveSymbolPosition(element, id) {
+  const existingSymbolIndex = symbols.findIndex((s) => s.id === id);
+  const position = {
+    id: id,
+    left: element.style.left || element.offsetLeft + "px",
+    top: element.style.top || element.offsetTop + "px",
+  };
+  if (existingSymbolIndex !== -1) {
+    symbols[existingSymbolIndex] = position;
+  } else {
+    symbols.push(position);
+  }
+  saveSymbols();
+}
 document.addEventListener("DOMContentLoaded", function () {
   const pumpImage = document.querySelector(".imgPump");
   const analogImage = document.querySelector(".imgAnalog");
+  let symbols = [];
   const pumpPath = [
     "assets/img/Coolpump.png",
     "assets/img/Coolpump_active.png",
@@ -34,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   //===============Function: Drag and Drop =============
-  function makeDraggable(element) {
+  function makeDraggable(element, symbolId) {
     let isDragging = false;
     let initialX;
     let initialY;
@@ -67,11 +82,17 @@ document.addEventListener("DOMContentLoaded", function () {
       isDragging = false;
       document.removeEventListener("mousemove", drag);
       document.removeEventListener("mouseup", dragEnd);
+
+      // Lưu vị trí sau khi kéo thả
+      saveSymbolPosition(element, symbolId);
     }
   }
+  // Gọi makeDraggable với ID tương ứng cho mỗi symbol
+  makeDraggable(pumpImage, "pump");
+  makeDraggable(analogImage, "analog");
 
-  makeDraggable(pumpImage);
-  makeDraggable(analogImage);
+  // Tải vị trí symbol khi trang được tải
+  loadSymbols();
 });
 
 //==========Draw Line Feature==============
@@ -86,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let isSelectMode = false;
   let startX, startY;
   let lines = [];
-  let symbols =[];
+  let symbols = [];
   let currentLine = null;
   let isCtrlPressed = false;
   let selectedLines = [];
@@ -107,6 +128,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function loadSymbols() {
+    const savedSymbols = localStorage.getItem("symbolItems");
+    if (savedSymbols) {
+      symbols = JSON.parse(savedSymbols);
+      console.log("Loaded symbols:", symbols);
+
+      //Apply saved position for each symbol
+      symbols.forEach((symbol) => {
+        if (symbol.id === "pump") {
+          pumpImage.style.left = symbol.left;
+          pumpImage.style.top = symbol.top;
+        } else if (symbol.id === "analog") {
+          analogImage.style.left = symbol.left;
+          analogImage.style.top = symbol.top;
+        }
+      });
+    }
+  }
   // Render all lines from the lines array
   function renderLines() {
     linesContainer.innerHTML = "";
@@ -163,8 +202,9 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("dashboardLines", JSON.stringify(lines));
     // alert("Lines saved successfully!");
   }
-  function saveSymbol() {
+  function saveSymbols() {
     localStorage.setItem("symbolItems", JSON.stringify(symbols));
+    console.log("Save symbols: ", symbols);
   }
   // Delete selected lines
   function deleteSelected() {
