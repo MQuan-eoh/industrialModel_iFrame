@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let isSelectMode = false;
   let startX, startY;
   let lines = [];
+  let symbols =[];
   let currentLine = null;
   let isCtrlPressed = false;
   let selectedLines = [];
@@ -162,7 +163,9 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("dashboardLines", JSON.stringify(lines));
     // alert("Lines saved successfully!");
   }
-
+  function saveSymbol() {
+    localStorage.setItem("symbolItems", JSON.stringify(symbols));
+  }
   // Delete selected lines
   function deleteSelected() {
     if (selectedLines.length === 0) {
