@@ -11,6 +11,7 @@ setInterval(() => {
   waterPump(randomLevel);
 }, 1000);
 
+let symbols = [];
 function saveSymbolPosition(element, id) {
   const existingSymbolIndex = symbols.findIndex((s) => s.id === id);
   const position = {
@@ -25,10 +26,31 @@ function saveSymbolPosition(element, id) {
   }
   saveSymbols();
 }
+function saveSymbols() {
+  localStorage.setItem("symbolItems", JSON.stringify(symbols));
+  console.log("Save symbols: ", symbols);
+}
+function loadSymbols() {
+  const savedSymbols = localStorage.getItem("symbolItems");
+  if (savedSymbols) {
+    symbols = JSON.parse(savedSymbols);
+    console.log("Loaded symbols:", symbols);
+    symbols.forEach((symbol) => {
+      if (symbol.id === "pump") {
+        const pumpImage = document.querySelector(".imgPump");
+        pumpImage.style.left = symbol.left;
+        pumpImage.style.top = symbol.top;
+      } else if (symbol.id === "analog") {
+        const analogImage = document.querySelector(".imgAnalog");
+        analogImage.style.left = symbol.left;
+        analogImage.style.top = symbol.top;
+      }
+    });
+  }
+}
 document.addEventListener("DOMContentLoaded", function () {
   const pumpImage = document.querySelector(".imgPump");
   const analogImage = document.querySelector(".imgAnalog");
-  let symbols = [];
   const pumpPath = [
     "assets/img/Coolpump.png",
     "assets/img/Coolpump_active.png",
@@ -107,7 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let isSelectMode = false;
   let startX, startY;
   let lines = [];
-  let symbols = [];
   let currentLine = null;
   let isCtrlPressed = false;
   let selectedLines = [];
@@ -125,25 +146,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (savedLines) {
       lines = JSON.parse(savedLines);
       renderLines();
-    }
-  }
-
-  function loadSymbols() {
-    const savedSymbols = localStorage.getItem("symbolItems");
-    if (savedSymbols) {
-      symbols = JSON.parse(savedSymbols);
-      console.log("Loaded symbols:", symbols);
-
-      //Apply saved position for each symbol
-      symbols.forEach((symbol) => {
-        if (symbol.id === "pump") {
-          pumpImage.style.left = symbol.left;
-          pumpImage.style.top = symbol.top;
-        } else if (symbol.id === "analog") {
-          analogImage.style.left = symbol.left;
-          analogImage.style.top = symbol.top;
-        }
-      });
     }
   }
   // Render all lines from the lines array
@@ -202,10 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("dashboardLines", JSON.stringify(lines));
     // alert("Lines saved successfully!");
   }
-  function saveSymbols() {
-    localStorage.setItem("symbolItems", JSON.stringify(symbols));
-    console.log("Save symbols: ", symbols);
-  }
+
   // Delete selected lines
   function deleteSelected() {
     if (selectedLines.length === 0) {
