@@ -320,24 +320,21 @@ body {
 .draw-menu .btndropdown-toggle:before {
   content: "▼";
   position: absolute;
-  right: 10px;
+  right: 3px;
   opacity: 0.8;
   font-size: 10px;
 }
 
 .dropdown-menu {
-  background: linear-gradient(
-    180deg,
-    rgba(22, 24, 32, 0.5) 0%,
-    rgba(32, 34, 42, 0.7) 100%
-  ) !important;
+  background-color: rgba(8, 12, 20, 0.85); /* More transparent and darker */
   border: 1px solid rgba(0, 180, 255, 0.2);
-  border-radius: 5px;
-  /* box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 180, 255, 0.3); */
+  border-radius: 8px; /* Increased border radius */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 180, 255, 0.3);
   padding: 0;
   margin-top: 10px;
   min-width: 180px;
   backdrop-filter: blur(5px);
+  overflow: hidden; /* Ensure inner elements respect the border radius */
 }
 
 .dropdown-menu:before {
@@ -347,7 +344,7 @@ body {
   right: 20px;
   width: 10px;
   height: 10px;
-  background-color: rgba(10, 15, 30, 0.95);
+  background-color: rgba(8, 12, 20, 0.85); /* Match the dropdown background */
   transform: rotate(45deg);
   border-top: 1px solid rgba(0, 180, 255, 0.2);
   border-left: 1px solid rgba(0, 180, 255, 0.2);
@@ -355,30 +352,31 @@ body {
 
 .dropdown-item {
   color: rgba(255, 255, 255, 0.8);
-  background: linear-gradient(
-    180deg,
-    rgba(22, 24, 32, 0.5) 0%,
-    rgba(32, 34, 42, 0.7) 100%
-  );
+  background-color: transparent;
   padding: 10px 15px;
   font-size: 13px;
   border: none;
   text-align: left;
   width: 100%;
-  /* border-bottom: 1px solid rgba(0, 180, 255, 0.1); */
+  border-bottom: 1px solid rgba(0, 180, 255, 0.1);
   transition: all 0.2s ease;
   position: relative;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.dropdown-item:first-child {
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
 }
 
 .dropdown-item:last-child {
-  border-bottom: none;
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
 }
 
 .dropdown-item:hover {
   background-color: rgba(0, 180, 255, 0.1);
   color: #00b4ff;
 }
-
 .dropdown-item.active {
   background-color: rgba(0, 180, 255, 0.15);
   color: #00b4ff;
