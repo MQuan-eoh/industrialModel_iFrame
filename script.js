@@ -6,6 +6,7 @@ const loggerPath = [
   "assets/img/Analoggauge_Active.png",
 ];
 const waterContainer = document.querySelector(".tank");
+const waterContainer2 = document.querySelector(".tank-2");
 let currentPumpIndex = 0;
 let currentAnalogIndex = 0;
 
@@ -24,6 +25,7 @@ setInterval(() => {
 
 let symbols = [];
 let tankWaters = [];
+let tankWaters2 = [];
 function saveSymbolPosition(element, id) {
   const existingSymbolIndex = symbols.findIndex((s) => s.id === id);
   const position = {
@@ -53,10 +55,28 @@ function saveWaterTankPosition(element, id) {
   }
   saveTank();
 }
-
+function saveWaterTankPosition2(element, id) {
+  const existingTankIndex2 = tankWaters2.findIndex((s) => s.id === id);
+  const positionTank2 = {
+    id: id,
+    left: element.style.left || element.offsetLeft + "px",
+    top: element.style.top || element.offsetTop + "px",
+  };
+  console.log("Value of position Tank2: ", positionTank2);
+  if (existingTankIndex2 !== -1) {
+    tankWaters2[existingTankIndex2] = positionTank2;
+  } else {
+    tankWaters2.push(positionTank2);
+  }
+  saveTank2();
+}
 function saveTank() {
   localStorage.setItem("tankItems", JSON.stringify(tankWaters));
   console.log("Save Tank Water : ", tankWaters);
+}
+function saveTank2() {
+  localStorage.setItem("tankItems2", JSON.stringify(tankWaters2));
+  console.log("Save Tank Water2 : ", tankWaters2);
 }
 
 function saveSymbols() {
@@ -88,6 +108,19 @@ function loadTankWater() {
       if (tankWater.id === "water") {
         waterContainer.style.left = tankWater.left;
         waterContainer.style.top = tankWater.top;
+      }
+    });
+  }
+}
+function loadTankWater2() {
+  const savedTank2 = localStorage.getItem("tankItems2");
+  if (savedTank2) {
+    tankWaters2 = JSON.parse(savedTank2);
+    console.log("Load Tank Water2: ", tankWaters2);
+    tankWaters2.forEach((tankWater2) => {
+      if (tankWater2.id === "water2") {
+        waterContainer2.style.left = tankWater2.left;
+        waterContainer2.style.top = tankWater2.top;
       }
     });
   }
@@ -178,14 +211,53 @@ document.addEventListener("DOMContentLoaded", function () {
       saveWaterTankPosition(element, tankWaterId);
     }
   }
+  function makeDraggableTank2(element, tankWaterId2) {
+    let isDragging = false;
+    let initialX;
+    let initialY;
+    let currentX;
+    let currentY;
 
+    element.addEventListener("mousedown", dragStart);
+
+    function dragStart(e) {
+      e.preventDefault();
+      initialX = e.clientX;
+      initialY = e.clientY;
+      currentX = element.offsetLeft;
+      currentY = element.offsetTop;
+      isDragging = true;
+      document.addEventListener("mousemove", drag);
+      document.addEventListener("mouseup", dragEnd);
+    }
+
+    function drag(e) {
+      if (isDragging) {
+        let dx = e.clientX - initialX;
+        let dy = e.clientY - initialY;
+        element.style.left = currentX + dx + "px";
+        element.style.top = currentY + dy + "px";
+      }
+    }
+
+    function dragEnd() {
+      isDragging = false;
+      document.removeEventListener("mousemove", drag);
+      document.removeEventListener("mouseup", dragEnd);
+
+      // Lưu vị trí sau khi kéo thả
+      saveWaterTankPosition2(element, tankWaterId2);
+    }
+  }
   // Gọi makeDraggable với ID tương ứng cho mỗi symbol
   makeDraggable(pumpImage, "pump");
   makeDraggable(analogImage, "analog");
   makeDraggableTank(waterContainer, "water");
+  makeDraggableTank2(waterContainer2, "water2");
   // Tải vị trí symbol khi trang được tải
   loadSymbols();
   loadTankWater();
+  loadTankWater2();
 });
 
 //==========Draw Line Feature==============
