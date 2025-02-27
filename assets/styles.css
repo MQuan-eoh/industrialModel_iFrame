@@ -8,13 +8,24 @@ body {
   background-repeat: no-repeat;
   font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
 }
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -10px;
+}
+.col-md-3 {
+  width: 25%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
 .card {
   background: linear-gradient(
     180deg,
     rgba(22, 24, 32, 0.5) 0%,
     rgba(32, 34, 42, 0.7) 100%
   ) !important;
-  border-radius: 10px;
+  border-radius: 12px;
   margin: 10px;
   padding: 20px;
   border: none !important;
@@ -35,6 +46,105 @@ body {
 }
 .gauge span {
   font-size: 2em;
+}
+.gauge {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+.gauge-background {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  top: 0;
+  left: 0;
+}
+.gauge-fill {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  clip-path: polygon(100px 100px, 100px 0, 200px 0, 200px 100px);
+  transform-origin: center bottom;
+  transition: transform 1s ease-out;
+}
+.gauge-center {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+  border-radius: 50%;
+  top: 25px;
+  left: 25px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.gauge-needle {
+  position: absolute;
+  width: 4px;
+  height: 95px;
+  background: #333;
+  left: 98px;
+  top: 5px;
+  transform-origin: bottom center;
+  transition: transform 1.5s cubic-bezier(0.33, 1.6, 0.66, 1);
+  z-index: 10;
+}
+.gauge-needle:after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #666 0%, #333 100%);
+  bottom: -5px;
+  left: -3px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+.gauge-value {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+.gauge-ticks {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+}
+.tick {
+  position: absolute;
+  width: 3px;
+  height: 10px;
+  background: #222;
+  left: 99px;
+  transform-origin: center 100px;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+.tick-label {
+  position: absolute;
+  font-size: 12px;
+  font-family: "Courier New", Courier, monospace;
+  color: #333;
+  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+  transform-origin: center 120px;
+}
+
+/* Colors based on value */
+.gauge-red {
+  background: linear-gradient(90deg, #ff3e3e, #ff9696);
+}
+.gauge-yellow {
+  background: linear-gradient(90deg, #ffcc00, #ffeb99);
+}
+.gauge-green {
+  background: linear-gradient(90deg, #28a745, #88e3a1);
 }
 .chart {
   height: 200px;
@@ -279,7 +389,7 @@ body {
   border-radius: 5px;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.1s ease;
   box-shadow: 0 0 10px rgba(0, 180, 255, 0.2);
   text-shadow: 0 0 5px rgba(0, 180, 255, 0.5);
   position: relative;
@@ -326,15 +436,14 @@ body {
 }
 
 .dropdown-menu {
-  background-color: rgba(8, 12, 20, 0.85); /* More transparent and darker */
-  border: 1px solid rgba(0, 180, 255, 0.2);
-  border-radius: 8px; /* Increased border radius */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 180, 255, 0.3);
-  padding: 0;
-  margin-top: 10px;
-  min-width: 180px;
-  backdrop-filter: blur(5px);
-  overflow: hidden; /* Ensure inner elements respect the border radius */
+  background-color: rgba(40, 40, 40, 0.7);
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 8px 0;
+  margin-top: 5px;
+  min-width: 160px;
+  backdrop-filter: blur(50px);
 }
 
 .dropdown-menu:before {
@@ -351,30 +460,28 @@ body {
 }
 
 .dropdown-item {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   background-color: transparent;
   padding: 10px 15px;
-  font-size: 13px;
+  font-size: 15px;
   border: none;
   text-align: left;
   width: 100%;
-  border-bottom: 1px solid rgba(0, 180, 255, 0.1);
-  transition: all 0.2s ease;
+  font-weight: normal;
   position: relative;
-  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  border-radius: 0;
 }
 .dropdown-item:first-child {
-  border-top-left-radius: 7px;
-  border-top-right-radius: 7px;
+  border-radius: 0;
 }
 
 .dropdown-item:last-child {
-  border-bottom-left-radius: 7px;
-  border-bottom-right-radius: 7px;
+  border-radius: 0;
 }
 
 .dropdown-item:hover {
-  background-color: rgba(0, 180, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
   color: #00b4ff;
 }
 .dropdown-item.active {
@@ -390,26 +497,6 @@ body {
   color: #00b4ff;
 }
 
-.dropdown-item#drawLineBtn:hover {
-  border-left: 2px solid #00b4ff;
-}
-
-.dropdown-item#saveLinesBtn:hover {
-  border-left: 2px solid #00ffaa;
-}
-
-.dropdown-item#selectLineBtn:hover {
-  border-left: 2px solid #aa80ff;
-}
-
-.dropdown-item#deleteSelectedBtn:hover {
-  border-left: 2px solid #ff6080;
-}
-
-.dropdown-item#clearAllLines:hover {
-  border-left: 2px solid #ff3333;
-}
-
 @keyframes glow-animation {
   0%,
   100% {
@@ -419,7 +506,15 @@ body {
     opacity: 0.6;
   }
 }
-
+.dropdown-item:hover:before,
+.dropdown-item#drawLineBtn:hover,
+.dropdown-item#saveLinesBtn:hover,
+.dropdown-item#selectLineBtn:hover,
+.dropdown-item#deleteSelectedBtn:hover,
+.dropdown-item#clearAllLines:hover {
+  content: none;
+  border-left: none;
+}
 /* Special effect for active drawing mode */
 #drawLineBtn.active,
 #selectLineBtn.active {
@@ -436,6 +531,12 @@ body {
 
 #clearAllLines:hover {
   background-color: rgba(255, 50, 50, 0.15);
+}
+.dropdown-item.active:after {
+  content: "✓";
+  position: absolute;
+  right: 15px;
+  color: #fff;
 }
 /*=============Chart Container===========*/
 .chart-container {

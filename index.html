@@ -19,33 +19,60 @@
       <div class="row">
         <div class="col-md-3">
           <div class="card">
-            <h2>OEE</h2>
+            <h2 style="font-size: 1.3rem">OEE</h2>
             <div class="gauge">
-              <span> 56.6% </span>
+              <div class="gauge-background">
+                <div class="gauge-fill gauge-yellow" id="gauge-fill-1"></div>
+              </div>
+
+              <div class="gauge-center"></div>
+              <div class="gauge-needle" id="gauge-needle-1"></div>
+              <div class="gauge-ticks" id="gauge-ticks-1"></div>
+              <div class="gauge-value">56.6%</div>
             </div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h2>Performance</h2>
+            <h2 style="font-size: 1.3rem">Performance</h2>
             <div class="gauge">
-              <span> 72.6% </span>
+              <div class="gauge-background">
+                <div class="gauge-fill gauge-green" id="gauge-fill-2"></div>
+              </div>
+
+              <div class="gauge-center"></div>
+              <div class="gauge-needle" id="gauge-needle-2"></div>
+              <div class="gauge-ticks" id="gauge-ticks-2"></div>
+              <div class="gauge-value">72.6%</div>
             </div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h2>Quality</h2>
+            <h2 style="font-size: 1.3rem">Quality</h2>
             <div class="gauge">
-              <span> 80.0% </span>
+              <div class="gauge-background">
+                <div class="gauge-fill gauge-green" id="gauge-fill-3"></div>
+              </div>
+
+              <div class="gauge-center"></div>
+              <div class="gauge-needle" id="gauge-needle-3"></div>
+              <div class="gauge-ticks" id="gauge-ticks-3"></div>
+              <div class="gauge-value">80.0%</div>
             </div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h2>Availability</h2>
+            <h2 style="font-size: 1.3rem">Availability</h2>
             <div class="gauge">
-              <span> 97.4% </span>
+              <div class="gauge-background">
+                <div class="gauge-fill gauge-green" id="gauge-fill-4"></div>
+              </div>
+              <div class="gauge-center"></div>
+              <div class="gauge-needle" id="gauge-needle-4"></div>
+              <div class="gauge-ticks" id="gauge-ticks-4"></div>
+              <div class="gauge-value">97.4%</div>
             </div>
           </div>
         </div>
@@ -53,8 +80,8 @@
       <div class="row">
         <div class="col-md-12">
           <div class="card">
-            <h2>Machine state</h2>
-            <p>machineinfo_machinestate_state_machinemode</p>
+            <h2 style="font-size: 1.3rem">Machine state</h2>
+            <p>Machine State</p>
             <div class="timeline">
               <div>09:48:30</div>
               <div>09:49:00</div>
@@ -79,7 +106,7 @@
       <div class="row">
         <div class="col-md-4">
           <div class="card">
-            <h2>Production quality</h2>
+            <h2 style="font-size: 1.3rem">Production quality</h2>
             <div class="chart">
               <img
                 alt="Pie chart showing production quality with good and bad parts"
@@ -94,13 +121,13 @@
         </div>
         <div class="col-md-4">
           <div class="card">
-            <h2>GUID Running order</h2>
+            <h2 style="font-size: 1.3rem">GUID Running order</h2>
             <p>966e582b-02a6-4fdd-88bb-d908674b6c05</p>
           </div>
         </div>
         <div class="col-md-4">
           <div class="card">
-            <h2>Product weight</h2>
+            <h2 style="font-size: 1.3rem">Product weight</h2>
             <div class="chart">
               <img
                 alt="Bar chart showing product weight distribution"
@@ -115,13 +142,13 @@
       <div class="row">
         <div class="col-md-4">
           <div class="card">
-            <h2>Product group</h2>
+            <h2 style="font-size: 1.3rem">Product group</h2>
             <p>Black</p>
           </div>
         </div>
         <div class="col-md-8">
           <div class="card">
-            <h2>Model</h2>
+            <h2 style="font-size: 1.3rem">Model</h2>
             <div class="model-container">
               <div class="chart-container">
                 <div class="glow-effect"></div>
@@ -242,5 +269,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="script.js"></script>
+    <script src="gauge.js"></script>
   </body>
 </html>
