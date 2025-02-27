@@ -1,3 +1,13 @@
+const pumpImage = document.querySelector(".imgPump");
+const analogImage = document.querySelector(".imgAnalog");
+const pumpPath = ["assets/img/Coolpump.png", "assets/img/Coolpump_active.png"];
+const loggerPath = [
+  "assets/img/Analoggauge.png",
+  "assets/img/Analoggauge_Active.png",
+];
+let currentPumpIndex = 0;
+let currentAnalogIndex = 0;
+
 function waterPump(level) {
   const water = document.getElementById("water");
   const levelWater = document.getElementById("level-text");
@@ -37,11 +47,9 @@ function loadSymbols() {
     console.log("Loaded symbols:", symbols);
     symbols.forEach((symbol) => {
       if (symbol.id === "pump") {
-        const pumpImage = document.querySelector(".imgPump");
         pumpImage.style.left = symbol.left;
         pumpImage.style.top = symbol.top;
       } else if (symbol.id === "analog") {
-        const analogImage = document.querySelector(".imgAnalog");
         analogImage.style.left = symbol.left;
         analogImage.style.top = symbol.top;
       }
@@ -49,19 +57,6 @@ function loadSymbols() {
   }
 }
 document.addEventListener("DOMContentLoaded", function () {
-  const pumpImage = document.querySelector(".imgPump");
-  const analogImage = document.querySelector(".imgAnalog");
-  const pumpPath = [
-    "assets/img/Coolpump.png",
-    "assets/img/Coolpump_active.png",
-  ];
-  const loggerPath = [
-    "assets/img/Analoggauge.png",
-    "assets/img/Analoggauge_Active.png",
-  ];
-  let currentPumpIndex = 0;
-  let currentAnalogIndex = 0;
-
   pumpImage.addEventListener("click", function () {
     currentPumpIndex = (currentPumpIndex + 1) % pumpPath.length;
     pumpImage.src = pumpPath[currentPumpIndex];
@@ -133,7 +128,15 @@ document.addEventListener("DOMContentLoaded", function () {
   let isCtrlPressed = false;
   let selectedLines = [];
   const dropdownMenu = document.querySelector(".dropdown-menu");
-
+  const clearAllButton = document.getElementById("clearAllLines");
+  clearAllButton.addEventListener("click", function () {
+    console.log("Access to clear all button");
+    lines = [];
+    selectedLines = [];
+    linesContainer.innerHTML = "";
+    saveLines();
+    alert("Clear all lines successful");
+  });
   const selectLineBtn = document.getElementById("selectLineBtn");
   dropdownMenu.appendChild(selectLineBtn);
 
