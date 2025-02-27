@@ -262,7 +262,434 @@ body {
 /* Styling for the drawing tools dropdown */
 .draw-menu {
   position: absolute;
-  top: 0;
+  top: 10px;
   right: 10px;
   z-index: 20;
+}
+
+.draw-menu .btndropdown-toggle {
+  background: linear-gradient(
+    180deg,
+    rgba(1, 1, 1, 0.7) 0%,
+    rgba(53, 63, 105, 0.7) 100%
+  ) !important;
+  color: #ffffff;
+  border: 1px solid rgba(0, 180, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 180, 255, 0.2);
+  text-shadow: 0 0 5px rgba(0, 180, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.draw-menu .btndropdown-toggle:hover {
+  background-color: rgba(15, 25, 40, 0.9);
+  box-shadow: 0 0 15px rgba(0, 180, 255, 0.4);
+  border-color: rgba(0, 180, 255, 0.6);
+}
+
+.draw-menu .btndropdown-toggle:after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  /* background: linear-gradient(
+    45deg,
+    rgba(0, 180, 255, 0.1),
+    transparent,
+    rgba(0, 180, 255, 0.1)
+  ); */
+  background: linear-gradient(
+    180deg,
+    rgba(22, 24, 32, 0.5) 0%,
+    rgba(32, 34, 42, 0.7) 100%
+  ) !important;
+  z-index: -1;
+  animation: glow-animation 3s infinite;
+}
+
+.draw-menu .btndropdown-toggle:before {
+  content: "▼";
+  position: absolute;
+  right: 10px;
+  opacity: 0.8;
+  font-size: 10px;
+}
+
+.dropdown-menu {
+  background: linear-gradient(
+    180deg,
+    rgba(22, 24, 32, 0.5) 0%,
+    rgba(32, 34, 42, 0.7) 100%
+  ) !important;
+  border: 1px solid rgba(0, 180, 255, 0.2);
+  border-radius: 5px;
+  /* box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 180, 255, 0.3); */
+  padding: 0;
+  margin-top: 10px;
+  min-width: 180px;
+  backdrop-filter: blur(5px);
+}
+
+.dropdown-menu:before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  width: 10px;
+  height: 10px;
+  background-color: rgba(10, 15, 30, 0.95);
+  transform: rotate(45deg);
+  border-top: 1px solid rgba(0, 180, 255, 0.2);
+  border-left: 1px solid rgba(0, 180, 255, 0.2);
+}
+
+.dropdown-item {
+  color: rgba(255, 255, 255, 0.8);
+  background: linear-gradient(
+    180deg,
+    rgba(22, 24, 32, 0.5) 0%,
+    rgba(32, 34, 42, 0.7) 100%
+  );
+  padding: 10px 15px;
+  font-size: 13px;
+  border: none;
+  text-align: left;
+  width: 100%;
+  /* border-bottom: 1px solid rgba(0, 180, 255, 0.1); */
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(0, 180, 255, 0.1);
+  color: #00b4ff;
+}
+
+.dropdown-item.active {
+  background-color: rgba(0, 180, 255, 0.15);
+  color: #00b4ff;
+  box-shadow: inset 0 0 5px rgba(0, 180, 255, 0.2);
+}
+
+.dropdown-item:hover:before {
+  content: "›";
+  position: absolute;
+  left: 5px;
+  color: #00b4ff;
+}
+
+.dropdown-item#drawLineBtn:hover {
+  border-left: 2px solid #00b4ff;
+}
+
+.dropdown-item#saveLinesBtn:hover {
+  border-left: 2px solid #00ffaa;
+}
+
+.dropdown-item#selectLineBtn:hover {
+  border-left: 2px solid #aa80ff;
+}
+
+.dropdown-item#deleteSelectedBtn:hover {
+  border-left: 2px solid #ff6080;
+}
+
+.dropdown-item#clearAllLines:hover {
+  border-left: 2px solid #ff3333;
+}
+
+@keyframes glow-animation {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Special effect for active drawing mode */
+#drawLineBtn.active,
+#selectLineBtn.active {
+  background-color: rgba(0, 180, 255, 0.15);
+  box-shadow: inset 0 0 8px rgba(0, 180, 255, 0.3);
+  color: #00b4ff;
+  text-shadow: 0 0 5px rgba(0, 180, 255, 0.5);
+}
+
+/* Danger action styling */
+#clearAllLines {
+  color: rgba(255, 96, 96, 0.9);
+}
+
+#clearAllLines:hover {
+  background-color: rgba(255, 50, 50, 0.15);
+}
+/*=============Chart Container===========*/
+.chart-container {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 200px;
+  background: linear-gradient(
+    180deg,
+    rgba(22, 24, 32, 0.5) 0%,
+    rgba(32, 34, 42, 0.7) 100%
+  ) !important;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 20px rgba(0, 180, 255, 0.3);
+  border: 1px solid rgba(0, 180, 255, 0.2);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  color: #fff;
+  border-bottom: 1px solid rgba(0, 180, 255, 0.2);
+  padding-bottom: 10px;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(0, 180, 255, 0.7);
+}
+
+.chart-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.chart-controls button {
+  background-color: rgba(0, 100, 150, 0.3);
+  border: 1px solid rgba(0, 180, 255, 0.4);
+  color: #00b4ff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chart-controls button:hover {
+  background-color: rgba(0, 100, 150, 0.5);
+  box-shadow: 0 0 10px rgba(0, 180, 255, 0.5);
+}
+
+.chart-body {
+  height: 150px;
+  position: relative;
+}
+
+.chart-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.grid-line {
+  height: 1px;
+  width: 100%;
+  background-color: rgba(0, 180, 255, 0.1);
+}
+
+.data-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+}
+
+.data-point {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #00b4ff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(0, 180, 255, 0.8);
+}
+
+.data-path {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00b4ff, #00b4ff);
+  transform-origin: left center;
+  animation: flowEffect 2s infinite;
+}
+
+.data-area {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 180, 255, 0.1) 0%,
+    rgba(0, 180, 255, 0) 100%
+  );
+}
+
+.chart-labels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 5px;
+}
+
+.chart-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 10px;
+  transform: translateY(-100%);
+}
+
+.data-pulse {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(0, 180, 255, 0.2);
+  animation: pulse 2s infinite;
+}
+
+.glow-effect {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(0, 180, 255, 0.1),
+    transparent 70%
+  );
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.tech-decoration {
+  position: absolute;
+  border: 1px solid rgba(0, 180, 255, 0.2);
+  width: 20px;
+  height: 20px;
+}
+
+.tech-decoration.top-left {
+  top: 10px;
+  left: 10px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.tech-decoration.top-right {
+  top: 10px;
+  right: 10px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.tech-decoration.bottom-left {
+  bottom: 10px;
+  left: 10px;
+  border-right: none;
+  border-top: none;
+}
+
+.tech-decoration.bottom-right {
+  bottom: 10px;
+  right: 10px;
+  border-left: none;
+  border-top: none;
+}
+
+.data-info {
+  position: absolute;
+  right: 20px;
+  top: 40px;
+  color: #00b4ff;
+  font-size: 14px;
+  text-shadow: 0 0 5px rgba(0, 180, 255, 0.7);
+}
+
+.status-indicator {
+  position: absolute;
+  right: 20px;
+  top: 70px;
+  display: flex;
+  align-items: center;
+  color: #00ffaa;
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #00ffaa;
+  margin-right: 5px;
+  box-shadow: 0 0 10px rgba(0, 255, 170, 0.8);
+  animation: blink 1.5s infinite;
+}
+
+@keyframes flowEffect {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }

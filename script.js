@@ -17,11 +17,18 @@ function waterPump(level) {
   water.style.height = heightPercentage;
   levelWater.textContent = level * 150 + "L";
 }
-
+function waterPump2(level) {
+  const water = document.getElementById("water2");
+  const heightPercentage = level + "%";
+  water.style.height = heightPercentage;
+}
 setInterval(() => {
   const randomLevel = Math.floor(Math.random() * 101);
   waterPump(randomLevel);
-}, 1000);
+
+  const randomLevel2 = Math.floor(Math.random() * 50);
+  waterPump2(randomLevel2);
+}, 3000);
 
 let symbols = [];
 let tankWaters = [];
@@ -534,4 +541,136 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Load saved lines on page load
   loadLines();
+});
+//=============Chart Container===========
+document.addEventListener("DOMContentLoaded", function () {
+  const dataLine = document.getElementById("data-line");
+  const dataArea = document.getElementById("data-area");
+  const dataValue = document.getElementById("data-value");
+  const chartWidth = document.querySelector(".chart-body").offsetWidth;
+  const chartHeight = document.querySelector(".chart-body").offsetHeight;
+
+  // Generate random data points
+  const generateData = (points = 20) => {
+    const data = [];
+    for (let i = 0; i < points; i++) {
+      // More realistic data with trends
+      const baseValue = 70 + Math.sin(i / 3) * 20;
+      const randomVariation = Math.random() * 10 - 5;
+      const value = Math.max(10, Math.min(95, baseValue + randomVariation));
+      data.push({
+        x: i / (points - 1),
+        y: value / 100,
+      });
+    }
+    return data;
+  };
+
+  const renderChart = (data) => {
+    // Clear previous chart
+    dataLine.innerHTML = "";
+
+    // Create data points and connections
+    data.forEach((point, index) => {
+      const x = point.x * chartWidth;
+      const y = (1 - point.y) * chartHeight;
+
+      // Create the data point
+      const dataPoint = document.createElement("div");
+      dataPoint.className = "data-point";
+      dataPoint.style.left = `${x}px`;
+      dataPoint.style.top = `${y}px`;
+      dataLine.appendChild(dataPoint);
+
+      // Create pulse effect for some points
+      if (index % 5 === 0) {
+        const dataPulse = document.createElement("div");
+        dataPulse.className = "data-pulse";
+        dataPulse.style.left = `${x}px`;
+        dataPulse.style.top = `${y}px`;
+        dataLine.appendChild(dataPulse);
+      }
+
+      // Connect to the next point
+      if (index < data.length - 1) {
+        const nextPoint = data[index + 1];
+        const nextX = nextPoint.x * chartWidth;
+        const nextY = (1 - nextPoint.y) * chartHeight;
+
+        const length = Math.sqrt(
+          Math.pow(nextX - x, 2) + Math.pow(nextY - y, 2)
+        );
+        const angle = (Math.atan2(nextY - y, nextX - x) * 180) / Math.PI;
+
+        const dataPath = document.createElement("div");
+        dataPath.className = "data-path";
+        dataPath.style.width = `${length}px`;
+        dataPath.style.left = `${x}px`;
+        dataPath.style.top = `${y}px`;
+        dataPath.style.transform = `rotate(${angle}deg)`;
+        dataLine.appendChild(dataPath);
+      }
+    });
+
+    // Create the area under the curve
+    const areaPoints = data
+      .map((point, index) => {
+        const x = point.x * chartWidth;
+        const y = (1 - point.y) * chartHeight;
+        return `${x},${y}`;
+      })
+      .join(" ");
+
+    const fullPath = `0,${chartHeight} ${areaPoints} ${chartWidth},${chartHeight}`;
+
+    dataArea.style.clipPath = `polygon(${fullPath})`;
+
+    // Update the data value display
+    const lastValue = data[data.length - 1].y * 100;
+    dataValue.textContent = `${lastValue.toFixed(1)}%`;
+  };
+
+  // Initial render
+  let chartData = generateData();
+  renderChart(chartData);
+
+  // Update chart periodically
+  setInterval(() => {
+    chartData = generateData();
+    renderChart(chartData);
+  }, 1000);
+
+  // Button event listeners
+  document.getElementById("daily-btn").addEventListener("click", function () {
+    this.style.backgroundColor = "rgba(0, 100, 150, 0.5)";
+    document.getElementById("weekly-btn").style.backgroundColor =
+      "rgba(0, 100, 150, 0.3)";
+    chartData = generateData(20);
+    renderChart(chartData);
+  });
+
+  document.getElementById("weekly-btn").addEventListener("click", function () {
+    this.style.backgroundColor = "rgba(0, 100, 150, 0.5)";
+    document.getElementById("daily-btn").style.backgroundColor =
+      "rgba(0, 100, 150, 0.3)";
+    chartData = generateData(30);
+    renderChart(chartData);
+  });
+
+  // Connect to existing components
+  const pumpImage = document.querySelector(".imgPump");
+  if (pumpImage) {
+    pumpImage.addEventListener("click", function () {
+      // Highlight the chart when pump is clicked
+      const chartContainer = document.querySelector(".chart-container");
+      chartContainer.style.boxShadow = "0 0 30px rgba(0, 180, 255, 0.6)";
+      setTimeout(() => {
+        chartContainer.style.boxShadow = "0 0 20px rgba(0, 180, 255, 0.3)";
+      }, 2000);
+
+      // Update chart data
+      chartData = generateData();
+      renderChart(chartData);
+    });
+  }
 });
