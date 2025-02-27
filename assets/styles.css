@@ -140,6 +140,9 @@ body {
   top: 50px;
   cursor: move;
 }
+.tank {
+  cursor: move;
+}
 .model-container img.imgAnalog {
   position: absolute;
   max-width: 70px;

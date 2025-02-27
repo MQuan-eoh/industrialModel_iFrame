@@ -5,6 +5,7 @@ const loggerPath = [
   "assets/img/Analoggauge.png",
   "assets/img/Analoggauge_Active.png",
 ];
+const waterContainer = document.querySelector(".tank");
 let currentPumpIndex = 0;
 let currentAnalogIndex = 0;
 
@@ -22,6 +23,7 @@ setInterval(() => {
 }, 1000);
 
 let symbols = [];
+let tankWaters = [];
 function saveSymbolPosition(element, id) {
   const existingSymbolIndex = symbols.findIndex((s) => s.id === id);
   const position = {
@@ -36,6 +38,27 @@ function saveSymbolPosition(element, id) {
   }
   saveSymbols();
 }
+function saveWaterTankPosition(element, id) {
+  const existingTankIndex = tankWaters.findIndex((s) => s.id === id);
+  const positionTank = {
+    id: id,
+    left: element.style.left || element.offsetLeft + "px",
+    top: element.style.top || element.offsetTop + "px",
+  };
+  console.log("Value of position Tank: ", positionTank);
+  if (existingTankIndex !== -1) {
+    tankWaters[existingTankIndex] = positionTank;
+  } else {
+    tankWaters.push(positionTank);
+  }
+  saveTank();
+}
+
+function saveTank() {
+  localStorage.setItem("tankItems", JSON.stringify(tankWaters));
+  console.log("Save Tank Water : ", tankWaters);
+}
+
 function saveSymbols() {
   localStorage.setItem("symbolItems", JSON.stringify(symbols));
   console.log("Save symbols: ", symbols);
@@ -52,6 +75,19 @@ function loadSymbols() {
       } else if (symbol.id === "analog") {
         analogImage.style.left = symbol.left;
         analogImage.style.top = symbol.top;
+      }
+    });
+  }
+}
+function loadTankWater() {
+  const savedTank = localStorage.getItem("tankItems");
+  if (savedTank) {
+    tankWaters = JSON.parse(savedTank);
+    console.log("Load Tank Water: ", tankWaters);
+    tankWaters.forEach((tankWater) => {
+      if (tankWater.id === "water") {
+        waterContainer.style.left = tankWater.left;
+        waterContainer.style.top = tankWater.top;
       }
     });
   }
@@ -104,12 +140,52 @@ document.addEventListener("DOMContentLoaded", function () {
       saveSymbolPosition(element, symbolId);
     }
   }
+  function makeDraggableTank(element, tankWaterId) {
+    let isDragging = false;
+    let initialX;
+    let initialY;
+    let currentX;
+    let currentY;
+
+    element.addEventListener("mousedown", dragStart);
+
+    function dragStart(e) {
+      e.preventDefault();
+      initialX = e.clientX;
+      initialY = e.clientY;
+      currentX = element.offsetLeft;
+      currentY = element.offsetTop;
+      isDragging = true;
+      document.addEventListener("mousemove", drag);
+      document.addEventListener("mouseup", dragEnd);
+    }
+
+    function drag(e) {
+      if (isDragging) {
+        let dx = e.clientX - initialX;
+        let dy = e.clientY - initialY;
+        element.style.left = currentX + dx + "px";
+        element.style.top = currentY + dy + "px";
+      }
+    }
+
+    function dragEnd() {
+      isDragging = false;
+      document.removeEventListener("mousemove", drag);
+      document.removeEventListener("mouseup", dragEnd);
+
+      // Lưu vị trí sau khi kéo thả
+      saveWaterTankPosition(element, tankWaterId);
+    }
+  }
+
   // Gọi makeDraggable với ID tương ứng cho mỗi symbol
   makeDraggable(pumpImage, "pump");
   makeDraggable(analogImage, "analog");
-
+  makeDraggableTank(waterContainer, "water");
   // Tải vị trí symbol khi trang được tải
   loadSymbols();
+  loadTankWater();
 });
 
 //==========Draw Line Feature==============
@@ -118,7 +194,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const linesContainer = document.querySelector(".lines-container");
   const drawLineBtn = document.getElementById("drawLineBtn");
   const saveLinesBtn = document.getElementById("saveLinesBtn");
-  const pumpImage = document.querySelector(".imgPump");
 
   let isDrawing = false;
   let isSelectMode = false;
@@ -127,6 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentLine = null;
   let isCtrlPressed = false;
   let selectedLines = [];
+
   const dropdownMenu = document.querySelector(".dropdown-menu");
   const clearAllButton = document.getElementById("clearAllLines");
   clearAllButton.addEventListener("click", function () {
@@ -134,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
     lines = [];
     selectedLines = [];
     linesContainer.innerHTML = "";
-    saveLines();
+    saveLines(); //save the empty sate to localStorage
     alert("Clear all lines successful");
   });
   const selectLineBtn = document.getElementById("selectLineBtn");
