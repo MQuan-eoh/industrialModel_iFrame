@@ -12,6 +12,7 @@
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="assets/styles.css" />
   </head>
   <body>
@@ -151,46 +152,7 @@
             <h2 style="font-size: 1.3rem">Model</h2>
             <div class="model-container">
               <div class="chart-container">
-                <div class="glow-effect"></div>
-                <div class="tech-decoration top-left"></div>
-                <div class="tech-decoration top-right"></div>
-                <div class="tech-decoration bottom-left"></div>
-                <div class="tech-decoration bottom-right"></div>
-
-                <div class="chart-header">
-                  <div class="chart-title">SYSTEM PERFORMANCE METRICS</div>
-                  <div class="chart-controls">
-                    <button id="daily-btn">24H</button>
-                    <button id="weekly-btn">7D</button>
-                  </div>
-                </div>
-
-                <div class="chart-body">
-                  <div class="chart-grid">
-                    <div class="grid-line"></div>
-                    <div class="grid-line"></div>
-                    <div class="grid-line"></div>
-                    <div class="grid-line"></div>
-                    <div class="grid-line"></div>
-                  </div>
-
-                  <div class="data-line" id="data-line"></div>
-                  <div class="data-area" id="data-area"></div>
-
-                  <div class="chart-labels">
-                    <div class="chart-label">00:00</div>
-                    <div class="chart-label">06:00</div>
-                    <div class="chart-label">12:00</div>
-                    <div class="chart-label">18:00</div>
-                    <div class="chart-label">24:00</div>
-                  </div>
-                </div>
-
-                <div class="data-info" id="data-value">87.5%</div>
-                <div class="status-indicator">
-                  <div class="status-dot"></div>
-                  SYSTEM OPTIMAL
-                </div>
+                <canvas id="techChart"></canvas>
               </div>
               <div class="draw-menu">
                 <button
@@ -265,10 +227,11 @@
         </div>
       </div>
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script src="script.js"></script>
-    <script src="gauge.js"></script>
   </body>
 </html>

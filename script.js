@@ -544,134 +544,175 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 //=============Chart Container===========
 document.addEventListener("DOMContentLoaded", function () {
-  const dataLine = document.getElementById("data-line");
-  const dataArea = document.getElementById("data-area");
-  const dataValue = document.getElementById("data-value");
-  const chartWidth = document.querySelector(".chart-body").offsetWidth;
-  const chartHeight = document.querySelector(".chart-body").offsetHeight;
+  // Setup chart
+  const ctx = document.getElementById("techChart").getContext("2d");
 
-  // Generate random data points
-  const generateData = (points = 20) => {
+  // Generate random data
+  const generateData = (count) => {
     const data = [];
-    for (let i = 0; i < points; i++) {
-      // More realistic data with trends
-      const baseValue = 70 + Math.sin(i / 3) * 20;
-      const randomVariation = Math.random() * 10 - 5;
-      const value = Math.max(10, Math.min(95, baseValue + randomVariation));
-      data.push({
-        x: i / (points - 1),
-        y: value / 100,
-      });
+    let value = 50;
+
+    for (let i = 0; i < count; i++) {
+      // Add some randomness but keep within bounds
+      value = Math.max(0, Math.min(100, value + (Math.random() - 0.5) * 10));
+      data.push(value);
     }
+
     return data;
   };
 
-  const renderChart = (data) => {
-    // Clear previous chart
-    dataLine.innerHTML = "";
+  // Generate timestamps for last 24 hours, one per hour
+  const generateTimeLabels = () => {
+    const labels = [];
+    const now = new Date();
 
-    // Create data points and connections
-    data.forEach((point, index) => {
-      const x = point.x * chartWidth;
-      const y = (1 - point.y) * chartHeight;
+    for (let i = 23; i >= 0; i--) {
+      const time = new Date(now);
+      time.setHours(now.getHours() - i);
 
-      // Create the data point
-      const dataPoint = document.createElement("div");
-      dataPoint.className = "data-point";
-      dataPoint.style.left = `${x}px`;
-      dataPoint.style.top = `${y}px`;
-      dataLine.appendChild(dataPoint);
+      const hours = String(time.getHours()).padStart(2, "0");
+      const minutes = String(time.getMinutes()).padStart(2, "0");
+      const seconds = String(time.getSeconds()).padStart(2, "0");
 
-      // Create pulse effect for some points
-      if (index % 5 === 0) {
-        const dataPulse = document.createElement("div");
-        dataPulse.className = "data-pulse";
-        dataPulse.style.left = `${x}px`;
-        dataPulse.style.top = `${y}px`;
-        dataLine.appendChild(dataPulse);
-      }
+      labels.push(`${hours}:${minutes}:${seconds}`);
+    }
 
-      // Connect to the next point
-      if (index < data.length - 1) {
-        const nextPoint = data[index + 1];
-        const nextX = nextPoint.x * chartWidth;
-        const nextY = (1 - nextPoint.y) * chartHeight;
-
-        const length = Math.sqrt(
-          Math.pow(nextX - x, 2) + Math.pow(nextY - y, 2)
-        );
-        const angle = (Math.atan2(nextY - y, nextX - x) * 180) / Math.PI;
-
-        const dataPath = document.createElement("div");
-        dataPath.className = "data-path";
-        dataPath.style.width = `${length}px`;
-        dataPath.style.left = `${x}px`;
-        dataPath.style.top = `${y}px`;
-        dataPath.style.transform = `rotate(${angle}deg)`;
-        dataLine.appendChild(dataPath);
-      }
-    });
-
-    // Create the area under the curve
-    const areaPoints = data
-      .map((point, index) => {
-        const x = point.x * chartWidth;
-        const y = (1 - point.y) * chartHeight;
-        return `${x},${y}`;
-      })
-      .join(" ");
-
-    const fullPath = `0,${chartHeight} ${areaPoints} ${chartWidth},${chartHeight}`;
-
-    dataArea.style.clipPath = `polygon(${fullPath})`;
-
-    // Update the data value display
-    const lastValue = data[data.length - 1].y * 100;
-    dataValue.textContent = `${lastValue.toFixed(1)}%`;
+    return labels;
   };
 
-  // Initial render
-  let chartData = generateData();
-  renderChart(chartData);
+  const data = {
+    labels: generateTimeLabels(),
+    datasets: [
+      {
+        label: "System Performance",
+        data: generateData(24),
+        borderColor: "#4cc9f0",
+        backgroundColor: "rgba(76, 201, 240, 0.1)",
+        borderWidth: 2,
+        pointBackgroundColor: "#f72585",
+        pointBorderColor: "#f72585",
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  };
+  const config = {
+    type: "line",
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: {
+            color: "rgba(255, 255, 255, 0.1)",
+          },
+          ticks: {
+            color: "#a5a5a5",
+            maxRotation: 45,
+            minRotation: 45,
+            autoSkip: true,
+            maxTicksLimit: 12,
+            callback: function (value, index, values) {
+              const fullLabel = this.getLabelForValue(value);
+              if (values.length > 12) {
+                return fullLabel.substring(0, 5);
+              }
+              return fullLabel; // Hiển thị HH:MM:SS
+            },
+          },
+        },
+        y: {
+          min: 0,
+          max: 100,
+          grid: {
+            color: "rgba(255, 255, 255, 0.1)",
+          },
+          ticks: {
+            color: "#a5a5a5",
+          },
+        },
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: "#ddd",
+          },
+        },
+        tooltip: {
+          backgroundColor: "rgba(59, 159, 185, 0.7)",
+          titleColor: "#fff",
+          bodyColor: "#ddd",
+          borderColor: "#4361ee",
+          borderWidth: 1,
+          callbacks: {
+            title: function (tooltipItems) {
+              // Hiển thị đầy đủ thời gian trong tooltip
+              return tooltipItems[0].label;
+            },
+          },
+        },
+      },
+      animation: {
+        duration: 2000,
+        easing: "easeOutQuart",
+      },
+    },
+  };
 
-  // Update chart periodically
+  const myChart = new Chart(ctx, config);
+
+  // Update tank water levels based on latest data point
+  const updateWaterLevels = () => {
+    const latestValue = data.datasets[0].data[data.datasets[0].data.length - 1];
+    const waterElement = document.getElementById("water");
+    const water2Element = document.getElementById("water2");
+    const levelText = document.getElementById("level-text");
+
+    if (waterElement) {
+      waterElement.style.height = `${latestValue}%`;
+    }
+
+    if (water2Element) {
+      water2Element.style.height = `${latestValue}%`;
+    }
+
+    if (levelText) {
+      const volumeInLiters = Math.round(latestValue * 150);
+      levelText.textContent = `${volumeInLiters}L`;
+    }
+  };
+
+  updateWaterLevels();
+
   setInterval(() => {
-    chartData = generateData();
-    renderChart(chartData);
-  }, 1000);
+    // Loại bỏ điểm dữ liệu đầu tiên
+    data.datasets[0].data.shift();
 
-  // Button event listeners
-  document.getElementById("daily-btn").addEventListener("click", function () {
-    this.style.backgroundColor = "rgba(0, 100, 150, 0.5)";
-    document.getElementById("weekly-btn").style.backgroundColor =
-      "rgba(0, 100, 150, 0.3)";
-    chartData = generateData(20);
-    renderChart(chartData);
-  });
+    // Thêm điểm dữ liệu mới
+    const lastValue = data.datasets[0].data[data.datasets[0].data.length - 1];
+    const newValue = Math.max(
+      0,
+      Math.min(100, lastValue + (Math.random() - 0.5) * 15)
+    );
+    data.datasets[0].data.push(newValue);
 
-  document.getElementById("weekly-btn").addEventListener("click", function () {
-    this.style.backgroundColor = "rgba(0, 100, 150, 0.5)";
-    document.getElementById("daily-btn").style.backgroundColor =
-      "rgba(0, 100, 150, 0.3)";
-    chartData = generateData(30);
-    renderChart(chartData);
-  });
+    // Cập nhật nhãn thời gian
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
 
-  // Connect to existing components
-  const pumpImage = document.querySelector(".imgPump");
-  if (pumpImage) {
-    pumpImage.addEventListener("click", function () {
-      // Highlight the chart when pump is clicked
-      const chartContainer = document.querySelector(".chart-container");
-      chartContainer.style.boxShadow = "0 0 30px rgba(0, 180, 255, 0.6)";
-      setTimeout(() => {
-        chartContainer.style.boxShadow = "0 0 20px rgba(0, 180, 255, 0.3)";
-      }, 2000);
+    // Loại bỏ nhãn thời gian đầu tiên và thêm nhãn mới
+    data.labels.shift();
+    data.labels.push(`${hours}:${minutes}:${seconds}`);
 
-      // Update chart data
-      chartData = generateData();
-      renderChart(chartData);
-    });
-  }
+    // Cập nhật biểu đồ
+    myChart.update();
+
+    // Cập nhật mực nước
+    updateWaterLevels();
+  }, 5000);
 });
-
