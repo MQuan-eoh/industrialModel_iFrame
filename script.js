@@ -541,9 +541,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Load saved lines on page load
   loadLines();
-});
-//=============Chart Container===========
-document.addEventListener("DOMContentLoaded", function () {
+  //==========Chart Container================
   // Setup chart
   const ctx = document.getElementById("techChart").getContext("2d");
 
@@ -649,7 +647,6 @@ document.addEventListener("DOMContentLoaded", function () {
           borderWidth: 1,
           callbacks: {
             title: function (tooltipItems) {
-              // Hiển thị đầy đủ thời gian trong tooltip
               return tooltipItems[0].label;
             },
           },
@@ -688,10 +685,7 @@ document.addEventListener("DOMContentLoaded", function () {
   updateWaterLevels();
 
   setInterval(() => {
-    // Loại bỏ điểm dữ liệu đầu tiên
     data.datasets[0].data.shift();
-
-    // Thêm điểm dữ liệu mới
     const lastValue = data.datasets[0].data[data.datasets[0].data.length - 1];
     const newValue = Math.max(
       0,
@@ -699,20 +693,316 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     data.datasets[0].data.push(newValue);
 
-    // Cập nhật nhãn thời gian
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
     const seconds = String(now.getSeconds()).padStart(2, "0");
-
-    // Loại bỏ nhãn thời gian đầu tiên và thêm nhãn mới
     data.labels.shift();
     data.labels.push(`${hours}:${minutes}:${seconds}`);
 
-    // Cập nhật biểu đồ
     myChart.update();
 
-    // Cập nhật mực nước
     updateWaterLevels();
   }, 5000);
+  //==========Add Symbol Feature=============
+  //Declare path symbols
+  let collectionSymbol = [];
+  const availableSymbols = [
+    { path: "assets/img/Coolpump.png", name: "Pump" },
+    { path: "assets/img/Analoggauge.png", name: "Analog Gauge" },
+    { path: "assets/img/closeCoupled.png", name: "Close Coupled" },
+    { path: "assets/img/filter.png", name: "Filter" },
+  ];
+
+  //function load symbols from localStorage
+  function loadSymbolCollection() {
+    const savedSymbols = localStorage.getItem("symbolCollection");
+    if (savedSymbols) {
+      collectionSymbol = JSON.parse(savedSymbols);
+      renderAddedSymbols();
+    }
+  }
+
+  //Function to save Symbols to localStorage
+  function saveSymbolCollection() {
+    localStorage.setItem("symbolCollection", JSON.stringify(collectionSymbol));
+  }
+
+  //function to render added Symbols on the model Container
+  function renderAddedSymbols() {
+    const existingAddedSymbols = document.querySelectorAll(".added-symbol");
+    existingAddedSymbols.forEach((symbol) => symbol.remove());
+
+    //add symbols from collection
+    collectionSymbol.forEach((symbol) => {
+      const newSymbol = document.createElement("img");
+      newSymbol.src = symbol.path;
+      newSymbol.className = "added-symbol";
+      newSymbol.alt = symbol.name;
+      newSymbol.style.left = symbol.left || "50px";
+      newSymbol.style.top = symbol.top || "50px";
+      newSymbol.style.position = "absolute";
+      newSymbol.style.width = "64px";
+      newSymbol.style.height = "auto";
+      newSymbol.style.cursor = "move";
+      newSymbol.dataset.id = symbol.id;
+
+      // Make the new symbol draggable
+      makeDraggableSymbol(newSymbol, symbol.id);
+
+      document.querySelector(".model-container").appendChild(newSymbol);
+    });
+  }
+
+  // Function to make symbols draggable
+  function makeDraggableSymbol(element, symbolId) {
+    let isDragging = false;
+    let initialX;
+    let initialY;
+    let currentX;
+    let currentY;
+
+    element.addEventListener("mousedown", dragStart);
+
+    function dragStart(e) {
+      e.preventDefault();
+      initialX = e.clientX;
+      initialY = e.clientY;
+      currentX = element.offsetLeft;
+      currentY = element.offsetTop;
+      isDragging = true;
+      document.addEventListener("mousemove", drag);
+      document.addEventListener("mouseup", dragEnd);
+    }
+
+    function drag(e) {
+      if (isDragging) {
+        let dx = e.clientX - initialX;
+        let dy = e.clientY - initialY;
+        element.style.left = currentX + dx + "px";
+        element.style.top = currentY + dy + "px";
+      }
+    }
+
+    function dragEnd() {
+      isDragging = false;
+      document.removeEventListener("mousemove", drag);
+      document.removeEventListener("mouseup", dragEnd);
+
+      // Save position after drag
+      const symbolIndex = collectionSymbol.findIndex((s) => s.id === symbolId);
+      if (symbolIndex !== -1) {
+        collectionSymbol[symbolIndex].left = element.style.left;
+        collectionSymbol[symbolIndex].top = element.style.top;
+        saveSymbolCollection();
+      }
+    }
+  }
+
+  // Create Symbol Picker modal
+  function createSymbolPickerModal() {
+    // Create modal container
+    const modalOverlay = document.createElement("div");
+    modalOverlay.className = "symbol-modal-overlay";
+    modalOverlay.style.position = "fixed";
+    modalOverlay.style.top = "0";
+    modalOverlay.style.left = "0";
+    modalOverlay.style.width = "100%";
+    modalOverlay.style.height = "100%";
+    modalOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+    modalOverlay.style.display = "flex";
+    modalOverlay.style.justifyContent = "center";
+    modalOverlay.style.alignItems = "center";
+    modalOverlay.style.zIndex = "9999";
+
+    // Create modal content
+    const modalContent = document.createElement("div");
+    modalContent.className = "symbol-modal-content";
+    modalContent.style.setProperty(
+      "background",
+      "linear-gradient(180deg, rgba(22, 24, 32, 0.5) 0%, rgba(32, 34, 42, 0.7) 100%)",
+      "important"
+    );
+
+    modalContent.style.borderRadius = "5px";
+    modalContent.style.padding = "20px";
+    modalContent.style.width = "80%";
+    modalContent.style.maxWidth = "600px";
+    modalContent.style.maxHeight = "80vh";
+    modalContent.style.overflow = "auto";
+    modalContent.style.color = "white";
+    modalContent.style.boxShadow = "0 4px 20px rgba(0, 0, 0, 0.5)";
+
+    // Create modal header
+    const modalHeader = document.createElement("div");
+    modalHeader.style.display = "flex";
+    modalHeader.style.justifyContent = "space-between";
+    modalHeader.style.alignItems = "center";
+    modalHeader.style.marginBottom = "20px";
+    modalHeader.style.borderBottom = "1px solid #444";
+    modalHeader.style.paddingBottom = "10px";
+
+    const modalTitle = document.createElement("h3");
+    modalTitle.textContent = "Select Symbols";
+    modalTitle.style.margin = "0";
+
+    const closeButton = document.createElement("button");
+    closeButton.textContent = "×";
+    closeButton.style.background = "none";
+    closeButton.style.border = "none";
+    closeButton.style.color = "white";
+    closeButton.style.fontSize = "24px";
+    closeButton.style.cursor = "pointer";
+    closeButton.onclick = function () {
+      document.body.removeChild(modalOverlay);
+    };
+
+    modalHeader.appendChild(modalTitle);
+    modalHeader.appendChild(closeButton);
+
+    // Create symbols grid
+    const symbolsGrid = document.createElement("div");
+    symbolsGrid.style.display = "grid";
+    symbolsGrid.style.gridTemplateColumns =
+      "repeat(auto-fill, minmax(120px, 1fr))";
+    symbolsGrid.style.gap = "15px";
+    symbolsGrid.style.marginBottom = "20px";
+
+    // Selected symbols tracking
+    const selectedSymbols = [];
+
+    // Add symbols to grid
+    availableSymbols.forEach((symbol, index) => {
+      const symbolItem = document.createElement("div");
+      symbolItem.style.border = "2px solid #444";
+      symbolItem.style.borderRadius = "5px";
+      symbolItem.style.padding = "10px";
+      symbolItem.style.textAlign = "center";
+      symbolItem.style.cursor = "pointer";
+      symbolItem.style.transition = "all 0.2s";
+
+      const symbolImg = document.createElement("img");
+      symbolImg.src = symbol.path;
+      symbolImg.alt = symbol.name;
+      symbolImg.style.width = "100%";
+      symbolImg.style.marginBottom = "8px";
+
+      const symbolName = document.createElement("div");
+      symbolName.textContent = symbol.name;
+      symbolName.style.fontSize = "14px";
+
+      symbolItem.appendChild(symbolImg);
+      symbolItem.appendChild(symbolName);
+
+      // Handle symbol selection
+      symbolItem.onclick = function () {
+        if (symbolItem.classList.contains("selected")) {
+          symbolItem.classList.remove("selected");
+          symbolItem.style.borderColor = "#444";
+          symbolItem.style.backgroundColor = "";
+
+          // Remove from selected symbols
+          const selectIndex = selectedSymbols.findIndex(
+            (s) => s.path === symbol.path
+          );
+          if (selectIndex !== -1) {
+            selectedSymbols.splice(selectIndex, 1);
+          }
+        } else {
+          symbolItem.classList.add("selected");
+          symbolItem.style.borderColor = "#4cc9f0";
+          symbolItem.style.backgroundColor = "rgba(76, 201, 240, 0.1)";
+
+          // Add to selected symbols
+          selectedSymbols.push({
+            path: symbol.path,
+            name: symbol.name,
+          });
+        }
+      };
+
+      symbolsGrid.appendChild(symbolItem);
+    });
+
+    // Create modal footer with buttons
+    const modalFooter = document.createElement("div");
+    modalFooter.style.display = "flex";
+    modalFooter.style.justifyContent = "flex-end";
+    modalFooter.style.gap = "10px";
+    modalFooter.style.borderTop = "1px solid #444";
+    modalFooter.style.paddingTop = "15px";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Cancel";
+    cancelButton.style.padding = "8px 16px";
+    cancelButton.style.border = "none";
+    cancelButton.style.borderRadius = "4px";
+    cancelButton.style.backgroundColor = "#555";
+    cancelButton.style.color = "white";
+    cancelButton.style.cursor = "pointer";
+    cancelButton.onclick = function () {
+      document.body.removeChild(modalOverlay);
+    };
+
+    const addButton = document.createElement("button");
+    addButton.textContent = "Add Selected";
+    addButton.style.padding = "8px 16px";
+    addButton.style.border = "none";
+    addButton.style.borderRadius = "4px";
+    addButton.style.backgroundColor = "#4cc9f0";
+    addButton.style.color = "white";
+    addButton.style.cursor = "pointer";
+    addButton.onclick = function () {
+      if (selectedSymbols.length === 0) {
+        alert("Please select at least one symbol to add");
+        return;
+      }
+
+      // Add selected symbols to collection
+      selectedSymbols.forEach((symbol) => {
+        const newSymbolId =
+          "symbol-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+        collectionSymbol.push({
+          id: newSymbolId,
+          path: symbol.path,
+          name: symbol.name,
+          left: "100px",
+          top: "100px",
+        });
+      });
+
+      // Save and render the updated collection
+      saveSymbolCollection();
+      renderAddedSymbols();
+
+      // Close the modal
+      document.body.removeChild(modalOverlay);
+    };
+
+    modalFooter.appendChild(cancelButton);
+    modalFooter.appendChild(addButton);
+
+    // Assemble the modal
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(symbolsGrid);
+    modalContent.appendChild(modalFooter);
+    modalOverlay.appendChild(modalContent);
+
+    // Add to the document
+    document.body.appendChild(modalOverlay);
+  }
+
+  // Add event listener to the "Add Symbols" button
+  const addSymbolsBtn = document.getElementById("addSymbols");
+  if (addSymbolsBtn) {
+    addSymbolsBtn.addEventListener("click", function () {
+      createSymbolPickerModal();
+    });
+  }
+
+  // Load existing symbols on page load
+  loadSymbolCollection();
+
+  //=============Select Symbol Feature============
+  
 });

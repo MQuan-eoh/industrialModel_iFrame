@@ -563,7 +563,8 @@ body {
 }
 
 /* Styling for existing elements */
-.tank, .tank-2 {
+.tank,
+.tank-2 {
   position: relative;
 }
 
@@ -664,3 +665,4 @@ body {
   stroke: #ff6b6b !important;
   stroke-width: 3px;
 }
+

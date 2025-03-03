@@ -80,26 +80,10 @@
       </div>
       <div class="row">
         <div class="col-md-12">
-          <div class="card">
-            <h2 style="font-size: 1.3rem">Machine state</h2>
-            <p>Machine State</p>
-            <div class="timeline">
-              <div>09:48:30</div>
-              <div>09:49:00</div>
-              <div>09:49:30</div>
-              <div>09:50:00</div>
-              <div>09:50:30</div>
-              <div>09:51:00</div>
-              <div>09:51:30</div>
-              <div>09:52:00</div>
-              <div>09:52:30</div>
-              <div>09:53:00</div>
-            </div>
-            <div class="timeline status">
-              <div class="ai">AI</div>
-              <div class="running">Running</div>
-              <div class="stopped">Stopped</div>
-              <div class="running">Running</div>
+          <div class="card chart-containerRange">
+            <title>Machine State</title>
+            <div class="data-table">
+
             </div>
           </div>
         </div>
@@ -129,14 +113,9 @@
         <div class="col-md-4">
           <div class="card">
             <h2 style="font-size: 1.3rem">Product weight</h2>
-            <div class="chart">
-              <img
-                alt="Bar chart showing product weight distribution"
-                height="200"
-                src="https://storage.googleapis.com/a1aa/image/llu3iuIebmv1SFSH_P0c3OqYzTi_kYRNAnSCNghiFKs.jpg"
-                width="200"
-              />
-            </div>
+              <div class="chart">
+              </div>
+            </figure>
           </div>
         </div>
       </div>
@@ -174,6 +153,12 @@
                   </button>
                   <button class="dropdown-item" id="deleteSelectedBtn">
                     Delete Selected
+                  </button>
+                    <button class="dropdown-item" id="addSymbols">
+                    Add Symbols
+                  </button>
+                  <button class="dropdown-item" id="selectSymbols">
+                    Select Symbols
                   </button>
                   <button class="dropdown-item" id="clearAllLines">
                     Clear All
