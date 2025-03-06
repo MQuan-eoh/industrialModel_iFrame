@@ -1004,36 +1004,122 @@ document.addEventListener("DOMContentLoaded", function () {
   loadSymbolCollection();
 
   //=============Select Symbol Feature============
-  let selectedSymbolRemove = [];
   const symbolsContainer = document.querySelector(".symbols-container");
   const selectSymbolBtn = document.getElementById("selectSymbols");
+
+  let isSymbolSelectMode = false;
+  let selectedSymbolsToRemove = [];
+
   selectSymbolBtn.addEventListener("click", function () {
     console.log("Access to the select symbols");
+    isSymbolSelectMode = !isSymbolSelectMode;
+    if (isSymbolSelectMode) {
+      selectSymbolBtn.classList.add("active");
+      symbolsContainer.style.cursor = "pointer";
+
+      //Enable symbol selection
+      enableSymbolSelection();
+    } else {
+      selectSymbolBtn.classList("active");
+      symbolsContainer.style.cursor = "default";
+
+      //clear selections when exiting select mode
+      selectedSymbolsToRemove = [];
+      updateSymbolSelections();
+    }
   });
-  function deletedSymbols() {
-    selectedSymbolRemove.sort((a, b) => b - a);
-    selectedSymbolRemove.forEach((index) => {
-      symbols.splice(index, 1);
-    });
-    selectedSymbolRemove = [];
-    renderSymbols();
-  }
-  function renderSymbols() {
-    symbolsContainer.innerHTML = "";
-    symbols.forEach((symbol, index) => {
-      const symbolElement = document.createElement("div");
-      if (selectedSymbolRemove.includes(index)) {
-        symbolElement.classList.add("selected");
-        console.log("Selected symbols");
+
+  function enableSymbolSelection() {
+    //Get all added symbols - Scan all added symbol 
+    const addSymbolsRemove = document.querySelectorAll(".added-symbol"); //must using querySelectorAll for scan all symbol
+
+    addSymbolsRemove.forEach((symbol) => {
+      //Add click event added symbols
+      symbol.addEventListener("click", symbolSelectHandler);
+
+      if (selectedSymbolsToRemove.includes(symbol.dataset.id)) {
+        symbol.classList.add("symbol-selected");
       }
     });
   }
-  selectSymbolBtn.addEventListener("click", deletedSymbols);
+
+  // Handle symbol selection
+  function symbolSelectHandler(e) {
+    e.stopPropagation();
+
+    if (!isSymbolSelectMode) return;
+
+    const symbolId = this.dataset.id;
+
+    // Toggle selection
+    if (selectedSymbolsToRemove.includes(symbolId)) {
+      selectedSymbolsToRemove = selectedSymbolsToRemove.filter(
+        (id) => id !== symbolId
+      );
+      this.classList.remove("symbol-selected");
+    } else {
+      selectedSymbolsToRemove.push(symbolId);
+      this.classList.add("symbol-selected");
+    }
+  }
+
+  // Update visuals for selected symbols
+  function updateSymbolSelections() {
+    const addedSymbols = document.querySelectorAll(".added-symbol");
+
+    addedSymbols.forEach((symbol) => {
+      if (selectedSymbolsToRemove.includes(symbol.dataset.id)) {
+        symbol.classList.add("symbol-selected");
+      } else {
+        symbol.classList.remove("symbol-selected");
+      }
+    });
+  }
+
+  // Delete selected symbols
+  function deleteSelectedSymbols() {
+    if (selectedSymbolsToRemove.length === 0) {
+      alert("No symbols selected. Please select symbols to delete.");
+      return;
+    }
+
+    // Filter out selected symbols from collectionSymbol array
+    collectionSymbol = collectionSymbol.filter(
+      (symbol) => !selectedSymbolsToRemove.includes(symbol.id)
+    );
+
+    // Save updated collection to localStorage
+    saveSymbolCollection();
+
+    // Clear selection array
+    selectedSymbolsToRemove = [];
+
+    // Re-render symbols
+    renderAddedSymbols();
+
+    alert("Selected symbols deleted successfully.");
+  }
+  // Add Delete key support
   document.addEventListener("keydown", function (e) {
-    // Add delete key support
-    if (e.key === "Delete" && selectedSymbolRemove.length > 0) {
-      deletedSymbols();
-      console.log("deleted symbol");
+    if (
+      e.key === "Delete" &&
+      isSymbolSelectMode &&
+      selectedSymbolsToRemove.length > 0
+    ) {
+      deleteSelectedSymbols();
     }
   });
+
+  // Add CSS for selected symbols
+  const styleElement = document.createElement("style");
+  styleElement.textContent = `
+    .symbol-selected {
+      border: 2px solid #ff3860 !important;
+      box-shadow: 0 0 10px rgba(255, 56, 96, 0.7) !important;
+    }
+    .added-symbol {
+      transition: all 0.2s ease;
+    }
+  `;
+  document.head.appendChild(styleElement);
 });
