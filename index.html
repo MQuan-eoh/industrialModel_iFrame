@@ -120,98 +120,84 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-12">
           <div class="card">
             <h2 style="font-size: 1.3rem">Product group</h2>
             <p>Black</p>
           </div>
         </div>
-        <div class="col-md-8">
-          <div class="card">
-            <h2 style="font-size: 1.3rem">Model</h2>
-            <div class="model-container">
-              <div class="chart-container">
-                <canvas id="techChart"></canvas>
-              </div>
-              <div class="draw-menu">
-                <button
-                  class="btndropdown-toggle"
-                  type="button"
-                  data-toggle="dropdown"
-                >
-                  Drawing Tools
-                </button>
-                <div class="dropdown-menu">
-                  <button class="dropdown-item" id="drawLineBtn">
-                    Draw Line
-                  </button>
-                  <button class="dropdown-item" id="saveLinesBtn">
-                    Save Lines
-                  </button>
-                  <button class="dropdown-item" id="selectLineBtn">
-                    Select Line
-                  </button>
-                  <button class="dropdown-item" id="deleteSelectedBtn">
-                    Delete Selected
-                  </button>
-                    <button class="dropdown-item" id="addSymbols">
-                    Add Symbols
-                  </button>
-                  <button class="dropdown-item" id="selectSymbols">
-                    Select Symbols
-                  </button>
-                  <button class="dropdown-item" id="clearAllLines">
-                    Clear All
-                  </button>
-                </div>
-              </div>
-              <div class="symbols-container"></div>
-              <div class="lines-container"></div>
-              <div class="level-text" id="level-text">15000L</div>
-              <div class="tank">
-                <div class="ruler"></div>
-                <div class="markers">
-                  <div class="marker">100%</div>
-                  <div class="marker">90%</div>
-                  <div class="marker">80%</div>
-                  <div class="marker">70%</div>
-                  <div class="marker">60%</div>
-                  <div class="marker">50%</div>
-                  <div class="marker">40%</div>
-                  <div class="marker">30%</div>
-                  <div class="marker">20%</div>
-                  <div class="marker">10%</div>
-                  <div class="marker">0%</div>
-                </div>
-                <div class="water" id="water"></div>
-              </div>
-              <img
-                src="assets/img/Coolpump.png"
-                class="imgPump"
-                alt="symbolIcons"
-              />
-              <img src="assets/img/Analoggauge.png" class="imgAnalog" />
-              <div class="tank-2">
-                <div class="ruler"></div>
-                <div class="markers">
-                  <div class="marker">100%</div>
-                  <div class="marker">90%</div>
-                  <div class="marker">80%</div>
-                  <div class="marker">70%</div>
-                  <div class="marker">60%</div>
-                  <div class="marker">50%</div>
-                  <div class="marker">40%</div>
-                  <div class="marker">30%</div>
-                  <div class="marker">20%</div>
-                  <div class="marker">10%</div>
-                  <div class="marker">0%</div>
-                </div>
-                <div class="water" id="water2"></div>
-              </div>
+      </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <h2>Model</h2>
+        <div class="model-container">
+          <div class="chart-container">
+            <canvas id="techChart"></canvas>
+          </div>
+          
+          <div class="draw-menu">
+            <button class="btndropdown-toggle" type="button" data-toggle="dropdown">
+              Drawing Tools
+            </button>
+            <div class="dropdown-menu">
+              <button class="dropdown-item" id="drawLineBtn">Draw Line</button>
+              <button class="dropdown-item" id="saveLinesBtn">Save Lines</button>
+              <button class="dropdown-item" id="selectLineBtn">Select Line</button>
+              <button class="dropdown-item" id="deleteSelectedBtn">Delete Selected</button>
+              <button class="dropdown-item" id="addSymbols">Add Symbols</button>
+              <button class="dropdown-item" id="selectSymbols">Select Symbols</button>
+              <button class="dropdown-item" id="clearAllLines">Clear All</button>
             </div>
+          </div>
+          
+          <div class="symbols-container"></div>
+          <div class="lines-container"></div>
+          
+          <div class="level-text" id="level-text">15000L</div>
+          
+          <div class="tank">
+            <div class="ruler"></div>
+            <div class="markers">
+              <div class="marker">100%</div>
+              <div class="marker">90%</div>
+              <div class="marker">80%</div>
+              <div class="marker">70%</div>
+              <div class="marker">60%</div>
+              <div class="marker">50%</div>
+              <div class="marker">40%</div>
+              <div class="marker">30%</div>
+              <div class="marker">20%</div>
+              <div class="marker">10%</div>
+              <div class="marker">0%</div>
+            </div>
+            <div class="water" id="water"></div>
+          </div>
+          
+          <img src="assets/img/Coolpump.png" class="imgPump" alt="symbolIcons">
+          <img src="assets/img/Analoggauge.png" class="imgAnalog" alt="Analog Gauge">
+          
+          <div class="tank-2">
+            <div class="ruler"></div>
+            <div class="markers">
+              <div class="marker">100%</div>
+              <div class="marker">90%</div>
+              <div class="marker">80%</div>
+              <div class="marker">70%</div>
+              <div class="marker">60%</div>
+              <div class="marker">50%</div>
+              <div class="marker">40%</div>
+              <div class="marker">30%</div>
+              <div class="marker">20%</div>
+              <div class="marker">10%</div>
+              <div class="marker">0%</div>
+            </div>
+            <div class="water" id="water2"></div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>

@@ -12,6 +12,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   margin: -10px;
+  width: 100%;
 }
 .col-md-3 {
   width: 25%;
@@ -29,6 +30,7 @@ body {
   margin: 10px;
   padding: 20px;
   border: none !important;
+  position: relative;
 }
 .card img {
   width: 100%;
@@ -209,15 +211,7 @@ body {
   background-color: #0ec3ff;
   transition: height 1s ease-in-out;
 }
-.ruler {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 100%;
-  width: 20px;
-  background: linear-gradient(to bottom, transparent 10%, #ccc 10%);
-  background-size: 100% 20px;
-}
+
 .level-text {
   font-size: 20px;
   color: #ff9500;
@@ -244,8 +238,8 @@ body {
 }
 .model-container img.imgPump {
   position: absolute;
-  max-width: 80px;
-  max-height: 70px;
+  max-width: 60px;
+  max-height: 50px;
   right: 100px;
   top: 50px;
   cursor: move;
@@ -259,7 +253,7 @@ body {
 .model-container img.imgAnalog {
   position: absolute;
   max-width: 70px;
-  max-height: 100px;
+  max-height: 60px;
   right: 100px;
   top: 170px;
   cursor: move;
@@ -365,8 +359,9 @@ body {
 .model-container {
   position: relative;
   width: 100%;
-  height: 400px;
-  overflow: hidden;
+  height: 70vh;
+  min-height: 500px;
+  overflow: visible;
 }
 
 /* Styling for the drawing tools dropdown */
@@ -436,6 +431,9 @@ body {
 }
 
 .dropdown-menu {
+  display: none; /* Will be toggled with JavaScript */
+  position: absolute;
+  right: 0;
   background-color: rgba(40, 40, 40, 0.7);
   border: none;
   border-radius: 14px;
@@ -445,6 +443,9 @@ body {
   min-width: 160px;
   backdrop-filter: blur(50px);
 }
+.dropdown-menu.show {
+  display: block;
+}
 
 .dropdown-menu:before {
   content: "";
@@ -453,7 +454,7 @@ body {
   right: 20px;
   width: 10px;
   height: 10px;
-  background-color: rgba(8, 12, 20, 0.85); /* Match the dropdown background */
+  background-color: rgba(8, 12, 20, 0.85);
   transform: rotate(45deg);
   border-top: 1px solid rgba(0, 180, 255, 0.2);
   border-left: 1px solid rgba(0, 180, 255, 0.2);
@@ -471,6 +472,7 @@ body {
   position: relative;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   border-radius: 0;
+  cursor: pointer;
 }
 .dropdown-item:first-child {
   border-radius: 0;
@@ -544,8 +546,10 @@ body {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 600px;
-  height: 200px;
+  width: 60%;
+  max-width: 800px;
+  min-width: 300px;
+  height: 40%;
   background: linear-gradient(
     180deg,
     rgba(22, 24, 32, 0.5) 0%,
@@ -585,8 +589,34 @@ body {
     rgba(255, 255, 255, 0.1) 0px,
     rgba(255, 255, 255, 0.1) 1px,
     transparent 1px,
-    transparent 10px
+    transparent 10%
   );
+  background-size: 100% 10%;
+}
+/* Tank containers with percentage-based positioning */
+.tank,
+.tank-2 {
+  position: absolute;
+  width: 15%;
+  max-width: 120px;
+  min-width: 80px;
+  height: 50%;
+  max-height: 220px;
+  min-height: 150px;
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: move;
+}
+
+.tank {
+  left: 10%;
+  bottom: 10%;
+}
+
+.tank-2 {
+  right: 10%;
+  bottom: 10%;
 }
 
 .markers {
@@ -599,9 +629,10 @@ body {
   font-size: 10px;
   color: #a5a5a5;
 }
-
 .marker {
-  position: relative;
+  font-size: 10px;
+  color: #ffffff;
+  text-align: left;
 }
 
 .level-text {
@@ -666,7 +697,73 @@ body {
   stroke-width: 3px;
 }
 
+/*Remove lag when drag and drop symbol*/
 .added-symbol {
   will-change: transform;
   transition: none;
+  position: absolute;
+}
+
+/*==========Responsive========*/
+/* Media queries for responsive design */
+@media (max-width: 1200px) {
+  .imgPump {
+    right: 25%;
+  }
+  .imgAnalog {
+    right: 25%;
+  }
+}
+
+@media (max-width: 992px) {
+  .model-container {
+    height: 80vh;
+  }
+  .chart-container {
+    width: 80%;
+  }
+  .level-text {
+    left: 30%;
+  }
+}
+
+@media (max-width: 768px) {
+  .model-container {
+    height: 90vh;
+  }
+  .chart-container {
+    width: 90%;
+    height: 25%;
+  }
+  .tank,
+  .tank-2 {
+    width: 20%;
+  }
+  .imgPump,
+  .imgAnalog {
+    width: 60px;
+  }
+  .level-text {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .chart-container {
+    width: 95%;
+    height: 20%;
+  }
+  .tank,
+  .tank-2 {
+    width: 25%;
+    min-width: 60px;
+  }
+  .markers {
+    font-size: 8px;
+    right: -30px;
+  }
+  .imgPump,
+  .imgAnalog {
+    width: 50px;
+  }
 }
