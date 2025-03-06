@@ -1003,7 +1003,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Load existing symbols on page load
   loadSymbolCollection();
 
-  //=============Select Symbol Feature============
+  //=============Delete Symbol Feature============
   const symbolsContainer = document.querySelector(".symbols-container");
   const selectSymbolBtn = document.getElementById("selectSymbols");
 
