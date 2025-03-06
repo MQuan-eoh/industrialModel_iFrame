@@ -282,7 +282,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let isCtrlPressed = false;
   let selectedLines = [];
 
-  const dropdownMenu = document.querySelector(".dropdown-menu");
+  // const dropdownMenu = document.querySelector(".dropdown-menu");
+  //=====Clear All Lines=====
   const clearAllButton = document.getElementById("clearAllLines");
   clearAllButton.addEventListener("click", function () {
     console.log("Access to clear all button");
@@ -292,11 +293,12 @@ document.addEventListener("DOMContentLoaded", function () {
     saveLines(); //save the empty sate to localStorage
     alert("Clear all lines successful");
   });
+
   const selectLineBtn = document.getElementById("selectLineBtn");
-  dropdownMenu.appendChild(selectLineBtn);
+  // dropdownMenu.appendChild(selectLineBtn);
 
   const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
-  dropdownMenu.appendChild(deleteSelectedBtn);
+  // dropdownMenu.appendChild(deleteSelectedBtn);
 
   // Load saved lines from localStorage
   function loadLines() {
@@ -306,6 +308,7 @@ document.addEventListener("DOMContentLoaded", function () {
       renderLines();
     }
   }
+
   // Render all lines from the lines array
   function renderLines() {
     linesContainer.innerHTML = "";
@@ -327,7 +330,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const angle =
         (Math.atan2(line.endY - line.startY, line.endX - line.startX) * 180) /
         Math.PI;
-
       // Set line style
       lineElement.style.width = `${length}px`;
       lineElement.style.left = `${line.startX}px`;
@@ -348,7 +350,6 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             selectedLines.push(lineIndex);
           }
-
           renderLines();
         });
       }
@@ -542,7 +543,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Load saved lines on page load
   loadLines();
   //==========Chart Container================
-  // Setup chart
   const ctx = document.getElementById("techChart").getContext("2d");
 
   // Generate random data
@@ -705,6 +705,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateWaterLevels();
   }, 5000);
   //==========Add Symbol Feature=============
+
   //Declare path symbols
   let collectionSymbol = [];
   const availableSymbols = [
@@ -798,7 +799,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
-
   // Create Symbol Picker modal
   function createSymbolPickerModal() {
     // Create modal container
@@ -1004,5 +1004,36 @@ document.addEventListener("DOMContentLoaded", function () {
   loadSymbolCollection();
 
   //=============Select Symbol Feature============
-  
+  let selectedSymbolRemove = [];
+  const symbolsContainer = document.querySelector(".symbols-container");
+  const selectSymbolBtn = document.getElementById("selectSymbols");
+  selectSymbolBtn.addEventListener("click", function () {
+    console.log("Access to the select symbols");
+  });
+  function deletedSymbols() {
+    selectedSymbolRemove.sort((a, b) => b - a);
+    selectedSymbolRemove.forEach((index) => {
+      symbols.splice(index, 1);
+    });
+    selectedSymbolRemove = [];
+    renderSymbols();
+  }
+  function renderSymbols() {
+    symbolsContainer.innerHTML = "";
+    symbols.forEach((symbol, index) => {
+      const symbolElement = document.createElement("div");
+      if (selectedSymbolRemove.includes(index)) {
+        symbolElement.classList.add("selected");
+        console.log("Selected symbols");
+      }
+    });
+  }
+  selectSymbolBtn.addEventListener("click", deletedSymbols);
+  document.addEventListener("keydown", function (e) {
+    // Add delete key support
+    if (e.key === "Delete" && selectedSymbolRemove.length > 0) {
+      deletedSymbols();
+      console.log("deleted symbol");
+    }
+  });
 });
