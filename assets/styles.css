@@ -703,7 +703,48 @@ body {
   transition: none;
   position: absolute;
 }
+.symbol-wrapper {
+  position: absolute;
+  cursor: move;
+  resize: none; /* Tắt chức năng resize mặc định */
+}
 
+.resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #4cc9f0;
+  border: 1px solid white;
+  border-radius: 50%;
+  z-index: 1000;
+  display: none;
+}
+
+/* Vị trí các handle */
+.nw-handle {
+  top: -6px;
+  left: -6px;
+  cursor: nw-resize;
+}
+.ne-handle {
+  top: -6px;
+  right: -6px;
+  cursor: ne-resize;
+}
+.sw-handle {
+  bottom: -6px;
+  left: -6px;
+  cursor: sw-resize;
+}
+.se-handle {
+  bottom: -6px;
+  right: -6px;
+  cursor: se-resize;
+}
+
+.symbol-wrapper:hover .resize-handle {
+  display: block;
+}
 /*==========Responsive========*/
 /* Media queries for responsive design */
 @media (max-width: 1200px) {

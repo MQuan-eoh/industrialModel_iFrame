@@ -736,42 +736,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //function to render added Symbols on the model Container
   function renderAddedSymbols() {
-    const existingAddedSymbols = document.querySelectorAll(".added-symbol");
+    const existingAddedSymbols = document.querySelectorAll(".symbol-wrapper");
     existingAddedSymbols.forEach((symbol) => symbol.remove());
 
-    // Add symbols from collection
     collectionSymbol.forEach((symbol) => {
-      const newSymbol = document.createElement("img");
-      newSymbol.src = symbol.path;
-      newSymbol.className = "added-symbol";
-      newSymbol.alt = symbol.name;
-      newSymbol.style.left = symbol.left || "50px";
-      newSymbol.style.top = symbol.top || "50px";
-      newSymbol.style.position = "absolute";
+      // Tạo wrapper div
+      const wrapper = document.createElement("div");
+      wrapper.className = "symbol-wrapper";
+      wrapper.style.left = symbol.left || "50px";
+      wrapper.style.top = symbol.top || "50px";
+      wrapper.style.position = "absolute";
+      wrapper.dataset.id = symbol.id;
 
-      // Apply saved dimensions if available
+      // Tạo hình ảnh bên trong wrapper
+      const img = document.createElement("img");
+      img.src = symbol.path;
+      img.alt = symbol.name;
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.pointerEvents = "none"; // Ngăn img can thiệp sự kiện chuột
+
+      // Áp dụng kích thước
       if (symbol.width) {
-        newSymbol.style.width = symbol.width;
+        wrapper.style.width = symbol.width;
       } else {
-        newSymbol.style.width = "64px"; // Default width
+        wrapper.style.width = "64px";
       }
 
       if (symbol.height) {
-        newSymbol.style.height = symbol.height;
+        wrapper.style.height = symbol.height;
       } else {
-        newSymbol.style.height = "auto"; // Default height
+        wrapper.style.height = "64px";
       }
 
-      newSymbol.style.cursor = "move";
-      newSymbol.dataset.id = symbol.id;
+      wrapper.appendChild(img);
+      document.querySelector(".model-container").appendChild(wrapper);
 
-      // Make the new symbol draggable
-      makeDraggableSymbol(newSymbol, symbol.id);
-
-      // Make the new symbol resizable
-      makeResizable(newSymbol, symbol.id);
-
-      document.querySelector(".model-container").appendChild(newSymbol);
+      // Thêm chức năng resize và drag cho wrapper
+      makeDraggableSymbol(wrapper, symbol.id);
+      makeResizable(wrapper, symbol.id);
     });
   }
 
