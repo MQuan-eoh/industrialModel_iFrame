@@ -704,15 +704,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     updateWaterLevels();
   }, 5000);
-  //==========Add Symbol Feature=============
 
+  //==========Add Symbol Feature=============
   //Declare path symbols
   let collectionSymbol = [];
   const availableSymbols = [
-    { path: "assets/img/Coolpump.png", name: "Pump" },
-    { path: "assets/img/Analoggauge.png", name: "Analog Gauge" },
+    { path: "assets/img/Coolpump.png", name: "Máy bơm" },
+    { path: "assets/img/Analoggauge.png", name: "Van nước" },
     { path: "assets/img/closeCoupled.png", name: "Close Coupled" },
-    { path: "assets/img/filter.png", name: "Filter" },
+    { path: "assets/img/filter.png", name: "Máy sấy" },
+    { path: "assets/img/waterTreatment.png", name: "Xử lý nước" },
+    { path: "assets/img/recyclingSystem.png", name: "Xử lý chất thải" },
+    { path: "assets/img/Oilskimmer.png", name: "Máy lọc dầu" },
+    { path: "assets/img/polymersystem.png", name: "Trạm bơm" },
+    { path: "assets/img/ElevatedTank.png", name: "Bồn chứa" },
   ];
 
   //function load symbols from localStorage
@@ -734,7 +739,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const existingAddedSymbols = document.querySelectorAll(".added-symbol");
     existingAddedSymbols.forEach((symbol) => symbol.remove());
 
-    //add symbols from collection
+    // Add symbols from collection
     collectionSymbol.forEach((symbol) => {
       const newSymbol = document.createElement("img");
       newSymbol.src = symbol.path;
@@ -743,13 +748,28 @@ document.addEventListener("DOMContentLoaded", function () {
       newSymbol.style.left = symbol.left || "50px";
       newSymbol.style.top = symbol.top || "50px";
       newSymbol.style.position = "absolute";
-      newSymbol.style.width = "64px";
-      newSymbol.style.height = "auto";
+
+      // Apply saved dimensions if available
+      if (symbol.width) {
+        newSymbol.style.width = symbol.width;
+      } else {
+        newSymbol.style.width = "64px"; // Default width
+      }
+
+      if (symbol.height) {
+        newSymbol.style.height = symbol.height;
+      } else {
+        newSymbol.style.height = "auto"; // Default height
+      }
+
       newSymbol.style.cursor = "move";
       newSymbol.dataset.id = symbol.id;
 
       // Make the new symbol draggable
       makeDraggableSymbol(newSymbol, symbol.id);
+
+      // Make the new symbol resizable
+      makeResizable(newSymbol, symbol.id);
 
       document.querySelector(".model-container").appendChild(newSymbol);
     });
@@ -766,6 +786,11 @@ document.addEventListener("DOMContentLoaded", function () {
     element.addEventListener("mousedown", dragStart);
 
     function dragStart(e) {
+      // Don't start dragging if we clicked on a resize handle
+      if (e.target !== element) {
+        return;
+      }
+
       e.preventDefault();
       initialX = e.clientX;
       initialY = e.clientY;
@@ -1030,7 +1055,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function enableSymbolSelection() {
-    //Get all added symbols - Scan all added symbol 
+    //Get all added symbols - Scan all added symbol
     const addSymbolsRemove = document.querySelectorAll(".added-symbol"); //must using querySelectorAll for scan all symbol
 
     addSymbolsRemove.forEach((symbol) => {
@@ -1117,9 +1142,192 @@ document.addEventListener("DOMContentLoaded", function () {
       border: 2px solid #ff3860 !important;
       box-shadow: 0 0 10px rgba(255, 56, 96, 0.7) !important;
     }
-    .added-symbol {
-      transition: all 0.2s ease;
-    }
   `;
   document.head.appendChild(styleElement);
+
+  /*=========Resize Feature=======*/
+  // Function to make symbols resizable
+  function makeResizable(element, symbolId) {
+    console.log("Access to the makeResizable function");
+    // Create resize handles for each corner
+    const handles = ["nw", "ne", "sw", "se"];
+    const handleElements = {};
+
+    // Add handles to the element
+    handles.forEach((position) => {
+      const handle = document.createElement("div");
+      handle.className = `resize-handle ${position}-handle`;
+      handle.style.position = "absolute";
+      handle.style.width = "12px";
+      handle.style.height = "12px";
+      handle.style.backgroundColor = "#4cc9f0";
+      handle.style.border = "1px solid white";
+      handle.style.borderRadius = "50%";
+      handle.style.cursor = `${position}-resize`;
+      handle.style.display = "none"; // Initially hidden
+      handle.style.zIndex = "100";
+
+      // Position the handles
+      if (position.includes("n")) {
+        // Top
+        handle.style.top = "-6px";
+      } else {
+        // Bottom
+        handle.style.bottom = "-6px";
+      }
+
+      if (position.includes("w")) {
+        // Left
+        handle.style.left = "-6px";
+      } else {
+        // Right
+        handle.style.right = "-6px";
+      }
+
+      element.appendChild(handle);
+      handleElements[position] = handle;
+    });
+
+    // Show/hide handles on mouse enter/leave
+    element.addEventListener("mouseenter", function () {
+      handles.forEach((position) => {
+        handleElements[position].style.display = "block";
+      });
+    });
+
+    element.addEventListener("mouseleave", function (e) {
+      // Only hide if we're not currently resizing and not hovering a handle
+      if (
+        !isResizing &&
+        !handles.some((pos) => e.relatedTarget === handleElements[pos])
+      ) {
+        handles.forEach((position) => {
+          handleElements[position].style.display = "none";
+        });
+      }
+    });
+
+    // Variables for resizing
+    let isResizing = false;
+    let currentHandle = null;
+    let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+    // Add event listeners to handles
+    handles.forEach((position) => {
+      const handle = handleElements[position];
+
+      handle.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent dragging from starting
+
+        isResizing = true;
+        currentHandle = position;
+
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = element.offsetWidth;
+        startHeight = element.offsetHeight;
+        startLeft = element.offsetLeft;
+        startTop = element.offsetTop;
+
+        document.addEventListener("mousemove", resize);
+        document.addEventListener("mouseup", stopResize);
+      });
+    });
+
+    // Resize function
+    function resize(e) {
+      if (!isResizing) return;
+
+      // Calculate new dimensions
+      let newWidth = startWidth;
+      let newHeight = startHeight;
+      let newLeft = startLeft;
+      let newTop = startTop;
+
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      // Calculate aspect ratio for proportional resizing
+      const aspectRatio = startWidth / startHeight;
+
+      // Adjust based on which handle is being dragged
+      if (currentHandle.includes("e")) {
+        // Right
+        newWidth = startWidth + dx;
+        // Maintain minimum size
+        newWidth = Math.max(newWidth, 20);
+      }
+      if (currentHandle.includes("w")) {
+        // Left
+        const widthChange = Math.min(startWidth - 20, dx);
+        newWidth = startWidth - widthChange;
+        newLeft = startLeft + widthChange;
+      }
+      if (currentHandle.includes("s")) {
+        // Bottom
+        newHeight = startHeight + dy;
+        // Maintain minimum size
+        newHeight = Math.max(newHeight, 20);
+      }
+      if (currentHandle.includes("n")) {
+        // Top
+        const heightChange = Math.min(startHeight - 20, dy);
+        newHeight = startHeight - heightChange;
+        newTop = startTop + heightChange;
+      }
+
+      // Apply new dimensions
+      element.style.width = `${newWidth}px`;
+      element.style.height = "auto"; // Maintain aspect ratio for image
+      element.style.left = `${newLeft}px`;
+      element.style.top = `${newTop}px`;
+    }
+
+    // Stop resizing
+    function stopResize() {
+      if (!isResizing) return;
+
+      isResizing = false;
+      document.removeEventListener("mousemove", resize);
+      document.removeEventListener("mouseup", stopResize);
+
+      // Save the new dimensions to the symbol collection
+      const symbolIndex = collectionSymbol.findIndex((s) => s.id === symbolId);
+      if (symbolIndex !== -1) {
+        collectionSymbol[symbolIndex].width = element.style.width;
+        collectionSymbol[symbolIndex].height = element.style.height;
+        collectionSymbol[symbolIndex].left = element.style.left;
+        collectionSymbol[symbolIndex].top = element.style.top;
+        saveSymbolCollection();
+      }
+    }
+  }
+  const resizeStyleElement = document.createElement("style");
+  resizeStyleElement.textContent = `
+  .added-symbol {
+    position: absolute;
+    cursor: move;
+  }
+  
+  .resize-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: #4cc9f0;
+    border: 1px solid white;
+    border-radius: 50%;
+    z-index: 100;
+  }
+  
+  .nw-handle { cursor: nw-resize; }
+  .ne-handle { cursor: ne-resize; }
+  .sw-handle { cursor: sw-resize; }
+  .se-handle { cursor: se-resize; }
+  
+  .symbol-selected .resize-handle {
+    background-color: #ff3860;
+  }
+`;
+  document.head.appendChild(resizeStyleElement);
 });
