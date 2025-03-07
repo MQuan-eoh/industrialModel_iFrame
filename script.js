@@ -1,10 +1,3 @@
-const pumpImage = document.querySelector(".imgPump");
-const analogImage = document.querySelector(".imgAnalog");
-const pumpPath = ["assets/img/Coolpump.png", "assets/img/Coolpump_active.png"];
-const loggerPath = [
-  "assets/img/Analoggauge.png",
-  "assets/img/Analoggauge_Active.png",
-];
 const waterContainer = document.querySelector(".tank");
 const waterContainer2 = document.querySelector(".tank-2");
 let currentPumpIndex = 0;
@@ -33,20 +26,7 @@ setInterval(() => {
 let symbols = [];
 let tankWaters = [];
 let tankWaters2 = [];
-function saveSymbolPosition(element, id) {
-  const existingSymbolIndex = symbols.findIndex((s) => s.id === id);
-  const position = {
-    id: id,
-    left: element.style.left || element.offsetLeft + "px",
-    top: element.style.top || element.offsetTop + "px",
-  };
-  if (existingSymbolIndex !== -1) {
-    symbols[existingSymbolIndex] = position;
-  } else {
-    symbols.push(position);
-  }
-  saveSymbols();
-}
+
 function saveWaterTankPosition(element, id) {
   const existingTankIndex = tankWaters.findIndex((s) => s.id === id);
   const positionTank = {
@@ -90,22 +70,7 @@ function saveSymbols() {
   localStorage.setItem("symbolItems", JSON.stringify(symbols));
   console.log("Save symbols: ", symbols);
 }
-function loadSymbols() {
-  const savedSymbols = localStorage.getItem("symbolItems");
-  if (savedSymbols) {
-    symbols = JSON.parse(savedSymbols);
-    console.log("Loaded symbols:", symbols);
-    symbols.forEach((symbol) => {
-      if (symbol.id === "pump") {
-        pumpImage.style.left = symbol.left;
-        pumpImage.style.top = symbol.top;
-      } else if (symbol.id === "analog") {
-        analogImage.style.left = symbol.left;
-        analogImage.style.top = symbol.top;
-      }
-    });
-  }
-}
+
 function loadTankWater() {
   const savedTank = localStorage.getItem("tankItems");
   if (savedTank) {
@@ -133,53 +98,8 @@ function loadTankWater2() {
   }
 }
 document.addEventListener("DOMContentLoaded", function () {
-  pumpImage.addEventListener("click", function () {
-    currentPumpIndex = (currentPumpIndex + 1) % pumpPath.length;
-    pumpImage.src = pumpPath[currentPumpIndex];
-
-    currentAnalogIndex = (currentAnalogIndex + 1) % loggerPath.length;
-    analogImage.src = loggerPath[currentAnalogIndex];
-  });
-
   //===============Function: Drag and Drop =============
-  function makeDraggable(element, symbolId) {
-    let isDragging = false;
-    let initialX;
-    let initialY;
-    let currentX;
-    let currentY;
 
-    element.addEventListener("mousedown", dragStart);
-
-    function dragStart(e) {
-      e.preventDefault();
-      initialX = e.clientX;
-      initialY = e.clientY;
-      currentX = element.offsetLeft;
-      currentY = element.offsetTop;
-      isDragging = true;
-      document.addEventListener("mousemove", drag);
-      document.addEventListener("mouseup", dragEnd);
-    }
-
-    function drag(e) {
-      if (isDragging) {
-        let dx = e.clientX - initialX;
-        let dy = e.clientY - initialY;
-        element.style.left = currentX + dx + "px";
-        element.style.top = currentY + dy + "px";
-      }
-    }
-
-    function dragEnd() {
-      isDragging = false;
-      document.removeEventListener("mousemove", drag);
-      document.removeEventListener("mouseup", dragEnd);
-
-      // Lưu vị trí sau khi kéo thả
-      saveSymbolPosition(element, symbolId);
-    }
-  }
   function makeDraggableTank(element, tankWaterId) {
     let isDragging = false;
     let initialX;
@@ -257,12 +177,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
   // Gọi makeDraggable với ID tương ứng cho mỗi symbol
-  makeDraggable(pumpImage, "pump");
-  makeDraggable(analogImage, "analog");
   makeDraggableTank(waterContainer, "water");
   makeDraggableTank2(waterContainer2, "water2");
-  // Tải vị trí symbol khi trang được tải
-  loadSymbols();
   loadTankWater();
   loadTankWater2();
 });
@@ -281,8 +197,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentLine = null;
   let isCtrlPressed = false;
   let selectedLines = [];
-
-  // const dropdownMenu = document.querySelector(".dropdown-menu");
   //=====Clear All Lines=====
   const clearAllButton = document.getElementById("clearAllLines");
   clearAllButton.addEventListener("click", function () {
@@ -295,10 +209,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   const selectLineBtn = document.getElementById("selectLineBtn");
-  // dropdownMenu.appendChild(selectLineBtn);
 
   const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
-  // dropdownMenu.appendChild(deleteSelectedBtn);
 
   // Load saved lines from localStorage
   function loadLines() {
@@ -527,18 +439,18 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Add water flow effect when pump is clicked
-  pumpImage.addEventListener("click", function () {
-    // Add flowing water effect to all lines
-    const drawnLines = document.querySelectorAll(".drawn-line");
-    drawnLines.forEach((line) => {
-      line.classList.add("flowing");
+  // pumpImage.addEventListener("click", function () {
+  //   // Add flowing water effect to all lines
+  //   const drawnLines = document.querySelectorAll(".drawn-line");
+  //   drawnLines.forEach((line) => {
+  //     line.classList.add("flowing");
 
-      // Remove the effect after animation completes
-      setTimeout(() => {
-        line.classList.remove("flowing");
-      }, 2000);
-    });
-  });
+  //     // Remove the effect after animation completes
+  //     setTimeout(() => {
+  //       line.classList.remove("flowing");
+  //     }, 2000);
+  //   });
+  // });
 
   // Load saved lines on page load
   loadLines();
