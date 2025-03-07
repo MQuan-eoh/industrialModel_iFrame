@@ -1059,7 +1059,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function enableSymbolSelection() {
     //Get all added symbols - Scan all added symbol
-    const addSymbolsRemove = document.querySelectorAll(".added-symbol"); //must using querySelectorAll for scan all symbol
+    const addSymbolsRemove = document.querySelectorAll(".symbol-wrapper"); //must using querySelectorAll for scan all symbol
 
     addSymbolsRemove.forEach((symbol) => {
       //Add click event added symbols
@@ -1306,31 +1306,31 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
-  const resizeStyleElement = document.createElement("style");
-  resizeStyleElement.textContent = `
-  .added-symbol {
-    position: absolute;
-    cursor: move;
-  }
-  
-  .resize-handle {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    background-color: #4cc9f0;
-    border: 1px solid white;
-    border-radius: 50%;
-    z-index: 100;
-  }
-  
-  .nw-handle { cursor: nw-resize; }
-  .ne-handle { cursor: ne-resize; }
-  .sw-handle { cursor: sw-resize; }
-  .se-handle { cursor: se-resize; }
-  
-  .symbol-selected .resize-handle {
-    background-color: #ff3860;
-  }
-`;
-  document.head.appendChild(resizeStyleElement);
+  //   const resizeStyleElement = document.createElement("style");
+  //   resizeStyleElement.textContent = `
+  //   .added-symbol {
+  //     position: absolute;
+  //     cursor: move;
+  //   }
+
+  //   .resize-handle {
+  //     position: absolute;
+  //     width: 12px;
+  //     height: 12px;
+  //     background-color: #4cc9f0;
+  //     border: 1px solid white;
+  //     border-radius: 50%;
+  //     z-index: 100;
+  //   }
+
+  //   .nw-handle { cursor: nw-resize; }
+  //   .ne-handle { cursor: ne-resize; }
+  //   .sw-handle { cursor: sw-resize; }
+  //   .se-handle { cursor: se-resize; }
+
+  //   .symbol-selected .resize-handle {
+  //     background-color: #ff3860;
+  //   }
+  // `;
+  //   document.head.appendChild(resizeStyleElement);
 });
