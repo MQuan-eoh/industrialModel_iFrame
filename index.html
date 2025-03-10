@@ -80,126 +80,104 @@
       </div>
       <div class="row">
         <div class="col-md-12">
-          <div class="card chart-containerRange">
-            <title>Machine State</title>
-            <div class="data-table">
-
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-4">
           <div class="card">
-            <h2 style="font-size: 1.3rem">Production quality</h2>
-            <div class="chart">
-              <img
-                alt="Pie chart showing production quality with good and bad parts"
-                height="200"
-                src="https://storage.googleapis.com/a1aa/image/OenIV5Vfpa74Dy6ggMOgv-UQfzTHTzJzeP-vSzcjqZU.jpg"
-                width="200"
-              />
-            </div>
-            <p>good_parts</p>
-            <p>bad_parts</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card">
-            <h2 style="font-size: 1.3rem">GUID Running order</h2>
-            <p>966e582b-02a6-4fdd-88bb-d908674b6c05</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card">
-            <h2 style="font-size: 1.3rem">Product weight</h2>
-              <div class="chart">
-              </div>
-            </figure>
+            <h2 style="font-size: 1.3rem">Product group</h2>
+            <p>Black</p>
+            tank
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
           <div class="card">
-            <h2 style="font-size: 1.3rem">Product group</h2>
-            <p>Black</p>tank
+            <h2>Factory Model</h2>
+            <div class="model-container">
+              <div class="chart-container">
+                <canvas id="techChart"></canvas>
+              </div>
+
+              <div class="draw-menu">
+                <button
+                  class="btndropdown-toggle"
+                  type="button"
+                  data-toggle="dropdown"
+                >
+                  Drawing Tools
+                </button>
+                <div class="dropdown-menu">
+                  <button class="dropdown-item" id="drawLineBtn">
+                    Draw Line
+                  </button>
+                  <button class="dropdown-item" id="saveLinesBtn">
+                    Save Lines
+                  </button>
+                  <button class="dropdown-item" id="selectLineBtn">
+                    Select Line
+                  </button>
+                  <button class="dropdown-item" id="deleteSelectedBtn">
+                    Delete Selected
+                  </button>
+                  <button class="dropdown-item" id="addSymbols">
+                    Add Symbols
+                  </button>
+                  <button class="dropdown-item" id="selectSymbols">
+                    Select Symbols
+                  </button>
+                  <button class="dropdown-item" id="clearAllLines">
+                    Clear All
+                  </button>
+                </div>
+              </div>
+
+              <div class="symbols-container"></div>
+              <div class="lines-container"></div>
+
+              <div class="level-text" id="level-text">15000L</div>
+
+              <div class="tank">
+                <div class="ruler"></div>
+                <div class="markers">
+                  <div class="marker">100%</div>
+                  <div class="marker">90%</div>
+                  <div class="marker">80%</div>
+                  <div class="marker">70%</div>
+                  <div class="marker">60%</div>
+                  <div class="marker">50%</div>
+                  <div class="marker">40%</div>
+                  <div class="marker">30%</div>
+                  <div class="marker">20%</div>
+                  <div class="marker">10%</div>
+                  <div class="marker">0%</div>
+                </div>
+                <div class="water" id="water"></div>
+              </div>
+              <div class="tank-2">
+                <div class="ruler"></div>
+                <div class="markers">
+                  <div class="marker">100%</div>
+                  <div class="marker">90%</div>
+                  <div class="marker">80%</div>
+                  <div class="marker">70%</div>
+                  <div class="marker">60%</div>
+                  <div class="marker">50%</div>
+                  <div class="marker">40%</div>
+                  <div class="marker">30%</div>
+                  <div class="marker">20%</div>
+                  <div class="marker">10%</div>
+                  <div class="marker">0%</div>
+                </div>
+                <div class="water" id="water2"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-  <div class="row">
-    <div class="col-md-12">
-      <div class="card">
-        <h2>Model</h2>
-        <div class="model-container">
-          <div class="chart-container">
-            <canvas id="techChart"></canvas>
-          </div>
-          
-          <div class="draw-menu">
-            <button class="btndropdown-toggle" type="button" data-toggle="dropdown">
-              Drawing Tools
-            </button>
-            <div class="dropdown-menu">
-              <button class="dropdown-item" id="drawLineBtn">Draw Line</button>
-              <button class="dropdown-item" id="saveLinesBtn">Save Lines</button>
-              <button class="dropdown-item" id="selectLineBtn">Select Line</button>
-              <button class="dropdown-item" id="deleteSelectedBtn">Delete Selected</button>
-              <button class="dropdown-item" id="addSymbols">Add Symbols</button>
-              <button class="dropdown-item" id="selectSymbols">Select Symbols</button>
-              <button class="dropdown-item" id="clearAllLines">Clear All</button>
-            </div>
-          </div>
-          
-          <div class="symbols-container"></div>
-          <div class="lines-container"></div>
-          
-          <div class="level-text" id="level-text">15000L</div>
-          
-          <div class="tank">
-            <div class="ruler"></div>
-            <div class="markers">
-              <div class="marker">100%</div>
-              <div class="marker">90%</div>
-              <div class="marker">80%</div>
-              <div class="marker">70%</div>
-              <div class="marker">60%</div>
-              <div class="marker">50%</div>
-              <div class="marker">40%</div>
-              <div class="marker">30%</div>
-              <div class="marker">20%</div>
-              <div class="marker">10%</div>
-              <div class="marker">0%</div>
-            </div>
-            <div class="water" id="water"></div>
-          </div>      
-          <div class="tank-2">
-            <div class="ruler"></div>
-            <div class="markers">
-              <div class="marker">100%</div>
-              <div class="marker">90%</div>
-              <div class="marker">80%</div>
-              <div class="marker">70%</div>
-              <div class="marker">60%</div>
-              <div class="marker">50%</div>
-              <div class="marker">40%</div>
-              <div class="marker">30%</div>
-              <div class="marker">20%</div>
-              <div class="marker">10%</div>
-              <div class="marker">0%</div>
-            </div>
-            <div class="water" id="water2"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+    <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

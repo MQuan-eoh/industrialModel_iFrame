@@ -8,20 +8,13 @@ function waterPump(level) {
   const levelWater = document.getElementById("level-text");
   const heightPercentage = level + "%";
   water.style.height = heightPercentage;
-  levelWater.textContent = level * 150 + "L";
+  levelWater.textContent = level + "L";
 }
 function waterPump2(level) {
   const water = document.getElementById("water2");
   const heightPercentage = level + "%";
   water.style.height = heightPercentage;
 }
-setInterval(() => {
-  const randomLevel = Math.floor(Math.random() * 101);
-  waterPump(randomLevel);
-
-  const randomLevel2 = Math.floor(Math.random() * 50);
-  waterPump2(randomLevel2);
-}, 3000);
 
 let symbols = [];
 let tankWaters = [];
@@ -615,7 +608,7 @@ document.addEventListener("DOMContentLoaded", function () {
     myChart.update();
 
     updateWaterLevels();
-  }, 5000);
+  }, 1000);
 
   //==========Add Symbol Feature=============
   //Declare path symbols
@@ -629,7 +622,10 @@ document.addEventListener("DOMContentLoaded", function () {
     { path: "assets/img/recyclingSystem.png", name: "Xử lý chất thải" },
     { path: "assets/img/Oilskimmer.png", name: "Máy lọc dầu" },
     { path: "assets/img/polymersystem.png", name: "Trạm bơm" },
-    { path: "assets/img/ElevatedTank.png", name: "Bồn chứa" },
+    { path: "assets/img/Horizontalpump7.png", name: "Bơm lớn" },
+    { path: "assets/img/tankLargest.png", name: "Bể nước lớn" },
+    { path: "assets/img/Modularoffice5.png", name: "Văn phòng" },
+    { path: "assets/img/Factory1.png", name: "Nhà máy" },
   ];
 
   //function load symbols from localStorage
@@ -652,7 +648,7 @@ document.addEventListener("DOMContentLoaded", function () {
     existingAddedSymbols.forEach((symbol) => symbol.remove());
 
     collectionSymbol.forEach((symbol) => {
-      // Tạo wrapper div
+      // Create wrapper div
       const wrapper = document.createElement("div");
       wrapper.className = "symbol-wrapper";
       wrapper.style.left = symbol.left || "50px";
@@ -660,15 +656,20 @@ document.addEventListener("DOMContentLoaded", function () {
       wrapper.style.position = "absolute";
       wrapper.dataset.id = symbol.id;
 
-      // Tạo hình ảnh bên trong wrapper
+      // Check if this is a pump symbol and add appropriate class
+      if (symbol.name === "Bơm lớn") {
+        wrapper.classList.add("pump-symbol");
+      }
+
+      // Create image inside wrapper
       const img = document.createElement("img");
       img.src = symbol.path;
       img.alt = symbol.name;
       img.style.width = "100%";
       img.style.height = "100%";
-      img.style.pointerEvents = "none"; // Ngăn img can thiệp sự kiện chuột
+      img.style.pointerEvents = "none"; // Prevent img from interfering with mouse events
 
-      // Áp dụng kích thước
+      // Apply size
       if (symbol.width) {
         wrapper.style.width = symbol.width;
       } else {
@@ -684,12 +685,61 @@ document.addEventListener("DOMContentLoaded", function () {
       wrapper.appendChild(img);
       document.querySelector(".model-container").appendChild(wrapper);
 
-      // Thêm chức năng resize và drag cho wrapper
+      // Add resize and drag functionality
       makeDraggableSymbol(wrapper, symbol.id);
       makeResizable(wrapper, symbol.id);
     });
+
+    // After rendering all symbols, set up pump event listeners
+    setupPumpEventListeners();
   }
 
+  function setupPumpEventListeners() {
+    // Get all pump symbols
+    const pumpSymbols = document.querySelectorAll(".pump-symbol");
+
+    // Store pump states (we'll use dataset to track state)
+    pumpSymbols.forEach((pump, index) => {
+      pump.dataset.state = "off";
+      pump.addEventListener("click", function () {
+        // symbolItem.style.cursor = "pointer;"
+        const pumpIndex = index; // Use index to differentiate between pumps
+        const currentState = this.dataset.state;
+
+        if (currentState === "off") {
+          // Turn pump on
+          console.log(`Turning pump ${pumpIndex + 1} ON`);
+          if (pumpIndex === 0 && onPump1) {
+            eraWidget.triggerAction(onPump1.action, null);
+          } else if (pumpIndex === 1 && onPump2) {
+            eraWidget.triggerAction(onPump2.action, null);
+          }
+          this.dataset.state = "on";
+          this.classList.add("pump-active"); // Add visual indicator class
+        } else {
+          // Turn pump off
+          console.log(`Turning pump ${pumpIndex + 1} OFF`);
+          if (pumpIndex === 0 && offPump1) {
+            eraWidget.triggerAction(offPump1.action, null);
+          } else if (pumpIndex === 1 && offPump2) {
+            eraWidget.triggerAction(offPump2.action, null);
+          }
+          this.dataset.state = "off";
+          this.classList.remove("pump-active"); // Remove visual indicator class
+        }
+      });
+    });
+  }
+
+  // Add CSS for active pump indicators
+  const pumpStyleElement = document.createElement("style");
+  pumpStyleElement.textContent = `
+  .pump-active {
+    box-shadow: 0 0 15px rgba(76, 201, 240, 0.8);
+    border: 2px solid #4cc9f0;
+  }
+`;
+  document.head.appendChild(pumpStyleElement);
   // Function to make symbols draggable
   function makeDraggableSymbol(element, symbolId) {
     let isDragging = false;
@@ -768,8 +818,8 @@ document.addEventListener("DOMContentLoaded", function () {
     modalContent.style.padding = "20px";
     modalContent.style.width = "80%";
     modalContent.style.maxWidth = "600px";
-    modalContent.style.maxHeight = "80vh";
-    modalContent.style.overflow = "auto";
+    modalContent.style.maxHeight = "60vh";
+    modalContent.style.overflowY = "auto";
     modalContent.style.color = "white";
     modalContent.style.boxShadow = "0 4px 20px rgba(0, 0, 0, 0.5)";
 
@@ -813,7 +863,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add symbols to grid
     availableSymbols.forEach((symbol, index) => {
-      const symbolItem = document.createElement("div");
+      // const symbolItem = document.createElement("div");
       symbolItem.style.border = "2px solid #444";
       symbolItem.style.borderRadius = "5px";
       symbolItem.style.padding = "10px";
@@ -1245,4 +1295,41 @@ document.addEventListener("DOMContentLoaded", function () {
   //   }
   // `;
   //   document.head.appendChild(resizeStyleElement);
+
+  //============E-Ra Services=======
+  const eraWidget = new EraWidget();
+  let lastTank1Value = NaN;
+  let lastTank2Value = NaN;
+  let configTank1 = null,
+    configTank2 = null,
+    onPump1 = null,
+    offPump1 = null,
+    onPump2 = null,
+    offPump2 = null;
+
+  eraWidget.init({
+    onConfiguration: (configuration) => {
+      configTank1 = configuration.realtime_configs[0];
+      configTank2 = configuration.realtime_configs[1];
+      onPump1 = configuration.actions[0];
+      offPump1 = configuration.actions[1];
+      onPump2 = configuration.actions[2];
+      offPump2 = configuration.actions[3];
+    },
+    onValues: (values) => {
+      if (configTank1 && values[configTank1.id]) {
+        const tank1Value = values[configTank1.id].value;
+        lastTank1Value = tank1Value;
+        waterPump(lastTank1Value);
+        console.log("value of tank 1: ", lastTank1Value);
+      }
+
+      if (configTank2 && values[configTank2.id]) {
+        const tank2Value = values[configTank2.id].value;
+        lastTank2Value = tank2Value;
+        waterPump2(lastTank2Value);
+        console.log("value of tank 2: ", lastTank2Value);
+      }
+    },
+  });
 });
