@@ -702,13 +702,15 @@ document.addEventListener("DOMContentLoaded", function () {
     pumpSymbols.forEach((pump, index) => {
       pump.dataset.state = "off";
       pump.addEventListener("click", function () {
-        // symbolItem.style.cursor = "pointer;"
+        const symbolItem = document.createElement("div");
+        symbolItem.style.cursor = "pointer;";
         const pumpIndex = index; // Use index to differentiate between pumps
         const currentState = this.dataset.state;
 
         if (currentState === "off") {
           // Turn pump on
           console.log(`Turning pump ${pumpIndex + 1} ON`);
+          console.log("Pump index: ", pumpIndex);
           if (pumpIndex === 0 && onPump1) {
             eraWidget.triggerAction(onPump1.action, null);
           } else if (pumpIndex === 1 && onPump2) {
@@ -863,7 +865,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add symbols to grid
     availableSymbols.forEach((symbol, index) => {
-      // const symbolItem = document.createElement("div");
+      const symbolItem = document.createElement("div");
       symbolItem.style.border = "2px solid #444";
       symbolItem.style.borderRadius = "5px";
       symbolItem.style.padding = "10px";
@@ -1268,34 +1270,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
-  //   const resizeStyleElement = document.createElement("style");
-  //   resizeStyleElement.textContent = `
-  //   .added-symbol {
-  //     position: absolute;
-  //     cursor: move;
-  //   }
-
-  //   .resize-handle {
-  //     position: absolute;
-  //     width: 12px;
-  //     height: 12px;
-  //     background-color: #4cc9f0;
-  //     border: 1px solid white;
-  //     border-radius: 50%;
-  //     z-index: 100;
-  //   }
-
-  //   .nw-handle { cursor: nw-resize; }
-  //   .ne-handle { cursor: ne-resize; }
-  //   .sw-handle { cursor: sw-resize; }
-  //   .se-handle { cursor: se-resize; }
-
-  //   .symbol-selected .resize-handle {
-  //     background-color: #ff3860;
-  //   }
-  // `;
-  //   document.head.appendChild(resizeStyleElement);
-
   //============E-Ra Services=======
   const eraWidget = new EraWidget();
   let lastTank1Value = NaN;
@@ -1321,15 +1295,104 @@ document.addEventListener("DOMContentLoaded", function () {
         const tank1Value = values[configTank1.id].value;
         lastTank1Value = tank1Value;
         waterPump(lastTank1Value);
-        console.log("value of tank 1: ", lastTank1Value);
       }
 
       if (configTank2 && values[configTank2.id]) {
         const tank2Value = values[configTank2.id].value;
         lastTank2Value = tank2Value;
         waterPump2(lastTank2Value);
-        console.log("value of tank 2: ", lastTank2Value);
       }
     },
   });
+});
+/*==============Gauge==========*/
+
+const gaugeConfig = {
+  "gauge-oee": { initialValue: 50, minValue: 0, maxValue: 180 },
+  "gauge-performance": { initialValue: 50, minValue: 0, maxValue: 180 },
+  "gauge-quality": { initialValue: 50, minValue: 0, maxValue: 180 },
+  "gauge-availability": { initialValue: 90, minValue: 0, maxValue: 180 },
+};
+
+function initializeGauge(gaugeId) {
+  const gauge = document.getElementById(gaugeId);
+  const ticks = gauge.querySelector(".ticks");
+  const labels = gauge.querySelector(".labels");
+  const needle = gauge.querySelector(".needle");
+  const valueDisplay = gauge.querySelector(".value-display");
+  const radius = 120;
+  const config = gaugeConfig[gaugeId];
+
+  for (let i = 0; i <= 180; i += 5) {
+    const angle = -135 + (i / 180) * 270;
+    if (i % 20 === 0) {
+      const tick = document.createElement("div");
+      tick.className = "tick major-tick";
+      tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translate(0, -${radius}px)`;
+      ticks.appendChild(tick);
+
+      const label = document.createElement("div");
+      label.className = "label";
+      const labelRadius = 100;
+      const angleRad = ((angle - 90) * Math.PI) / 180;
+      const x = 150 + labelRadius * Math.cos(angleRad);
+      const y = 150 + labelRadius * Math.sin(angleRad);
+      label.style.left = `${x}px`;
+      label.style.top = `${y}px`;
+      label.innerHTML = i;
+      labels.appendChild(label);
+    } else if (i % 10 === 0) {
+      const tick = document.createElement("div");
+      tick.className = "tick minor-tick";
+      tick.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translate(0, -${radius}px)`;
+      ticks.appendChild(tick);
+    }
+  }
+
+  function setGaugeValue(value) {
+    if (value < config.minValue) value = config.minValue;
+    if (value > config.maxValue) value = config.maxValue;
+    const angle = -135 + (value / 180) * 270;
+    needle.style.transform = `translate(-50%, 0) rotate(${angle}deg)`;
+    valueDisplay.innerHTML = value;
+
+    const colors = ["#00f7ff", "#ffd700", "#ff8c00", "#ff0000"];
+    const colorIndex = Math.min(Math.floor(value / 45), 3);
+    needle.style.borderBottomColor = colors[colorIndex];
+  }
+
+  gauge.addEventListener("click", () => {
+    document
+      .querySelectorAll(".gauge")
+      .forEach((g) => g.classList.remove("active"));
+
+    gauge.classList.add("active");
+
+    console.log(
+      `Gauge ${gaugeId} clicked with value: ${valueDisplay.innerHTML}`
+    );
+
+    setGaugeValue(Math.floor(Math.random() * config.maxValue));
+  });
+
+  setGaugeValue(config.initialValue);
+
+  return setGaugeValue;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const gaugeControllers = {};
+  Object.keys(gaugeConfig).forEach((gaugeId) => {
+    gaugeControllers[gaugeId] = initializeGauge(gaugeId);
+  });
+  setInterval(() => {
+    const gaugeIds = Object.keys(gaugeConfig);
+    const randomGaugeId = gaugeIds[Math.floor(Math.random() * gaugeIds.length)];
+    const randomValue = Math.floor(
+      Math.random() * gaugeConfig[randomGaugeId].maxValue
+    );
+    gaugeControllers[randomGaugeId](randomValue);
+  }, 3000);
+
+  document.getElementById("gauge-oee").classList.add("active");
 });
