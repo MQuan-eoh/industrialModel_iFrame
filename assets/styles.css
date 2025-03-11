@@ -85,14 +85,14 @@ body {
   position: absolute;
   background: conic-gradient(
     from 180deg,
-    #00ff00 0deg 67.5deg,
+    #00ff00 0deg 67.5deg,s
     #9acd32 67.5deg 135deg,
     #ffa500 135deg 202.5deg,
     #ff0000 202.5deg 270deg,
     transparent 270deg 360deg
   );
   border-radius: 50%;
-  mask-image: radial-gradient(transparent 72%, black 72%);
+  mask-image: radial-gradient(transparent 72%, black 52%);
   z-index: 1;
 }
 

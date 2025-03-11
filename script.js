@@ -430,21 +430,6 @@ document.addEventListener("DOMContentLoaded", function () {
       renderLines();
     }
   });
-
-  // Add water flow effect when pump is clicked
-  // pumpImage.addEventListener("click", function () {
-  //   // Add flowing water effect to all lines
-  //   const drawnLines = document.querySelectorAll(".drawn-line");
-  //   drawnLines.forEach((line) => {
-  //     line.classList.add("flowing");
-
-  //     // Remove the effect after animation completes
-  //     setTimeout(() => {
-  //       line.classList.remove("flowing");
-  //     }, 2000);
-  //   });
-  // });
-
   // Load saved lines on page load
   loadLines();
   //==========Chart Container================
@@ -693,10 +678,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // After rendering all symbols, set up pump event listeners
     setupPumpEventListeners();
   }
-
   function setupPumpEventListeners() {
     // Get all pump symbols
     const pumpSymbols = document.querySelectorAll(".pump-symbol");
+    // Get all lines
+    const drawnLines = document.querySelectorAll(".drawn-line");
 
     // Store pump states (we'll use dataset to track state)
     pumpSymbols.forEach((pump, index) => {
@@ -718,6 +704,13 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           this.dataset.state = "on";
           this.classList.add("pump-active"); // Add visual indicator class
+          //Restore line color to default when pump is ON
+          drawnLines.forEach((line) => {
+            line.style.background = ""; //Delete style to reuse default CSS
+
+            //Restore CSS for ::before animation
+            updateLineAnimationColor(line, "rgba(255, 255, 255, 0.8)");
+          });
         } else {
           // Turn pump off
           console.log(`Turning pump ${pumpIndex + 1} OFF`);
@@ -728,11 +721,53 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           this.dataset.state = "off";
           this.classList.remove("pump-active"); // Remove visual indicator class
+
+          drawnLines.forEach((line) => {
+            line.style.background = "#808080"; //Grey
+            //Change CSS ::before animation
+            updateLineAnimationColor(line, "#808080");
+          });
         }
       });
     });
   }
+  function updateLineAnimationColor(lineElement, color) {
+    //create a new stylesheet or using an existing stylesheet
+    let styleEl = document.getElementById("dynamic-line-styles");
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = "dynamic-line-styles";
+      document.head.appendChild(styleEl);
+    }
 
+    // create a unique id with line element
+    if (!lineElement.id) {
+      lineElement.id = "line-" + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Update CSS with new effect line
+    const cssText = `
+    #${lineElement.id}::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      height: 100%;
+      width: 100%;
+      border-radius: 2px;
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        ${color} 50%,
+        transparent 100%
+      );
+      animation: pump 2s linear infinite;
+      filter: blur(1px);
+    }
+  `;
+
+    styleEl.textContent += cssText;
+  }
   // Add CSS for active pump indicators
   const pumpStyleElement = document.createElement("style");
   pumpStyleElement.textContent = `
@@ -1426,7 +1461,7 @@ function initializeGauge(gaugeId) {
 
     valueDisplay.innerHTML = value;
 
-    const colors = ["#00f7ff", "#ffd700", "#ff8c00", "#ff0000"];
+    const colors = ["#00ff22", "#ffd700", "#ff8c00", "#ff0000"];
     const colorIndex = Math.min(Math.floor(value / 45), 3);
     needle.style.borderBottomColor = colors[colorIndex];
     borderValueDisplay.style.borderColor = colors[colorIndex];
