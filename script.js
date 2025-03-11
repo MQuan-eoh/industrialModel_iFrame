@@ -1387,6 +1387,7 @@ function initializeGauge(gaugeId) {
   const ticks = gauge.querySelector(".ticks");
   const labels = gauge.querySelector(".labels");
   const needle = gauge.querySelector(".needle");
+  const borderValueDisplay = gauge.querySelector(".value-display");
   const valueDisplay = gauge.querySelector(".value-display");
   const radius = 120;
   const config = gaugeConfig[gaugeId];
@@ -1422,11 +1423,15 @@ function initializeGauge(gaugeId) {
     if (value > config.maxValue) value = config.maxValue;
     const angle = -135 + (value / 180) * 270;
     needle.style.transform = `translate(-50%, 0) rotate(${angle}deg)`;
+
     valueDisplay.innerHTML = value;
 
     const colors = ["#00f7ff", "#ffd700", "#ff8c00", "#ff0000"];
     const colorIndex = Math.min(Math.floor(value / 45), 3);
     needle.style.borderBottomColor = colors[colorIndex];
+    borderValueDisplay.style.borderColor = colors[colorIndex];
+
+    gauge.style.setProperty("--gauge-color", colors[colorIndex]);
   }
 
   gauge.addEventListener("click", () => {
