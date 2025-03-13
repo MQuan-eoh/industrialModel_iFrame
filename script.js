@@ -261,6 +261,29 @@ document.addEventListener("DOMContentLoaded", function () {
       linesContainer.appendChild(lineElement);
     });
   }
+  //========Management of drop down menu=========
+  // Thêm sự kiện click cho dropdown menu để quản lý chế độ active
+  const dropdownMenu = document.querySelector(".dropdown-menu");
+  const modeButtons = [
+    "drawLineBtn",
+    "selectLineBtn",
+    "selectSymbols",
+    "changePosition",
+  ];
+
+  dropdownMenu.addEventListener("click", function (e) {
+    const target = e.target;
+    if (!target.classList.contains("dropdown-item")) return;
+
+    //check if mode button
+    if (modeButtons.includes(target.id)) {
+      //Delete all class active
+      modeButtons.forEach((id) => {
+        document.getElementById(id).classList.remove("active");
+      });
+      target.classList.add("active");
+    }
+  });
 
   // Save lines to localStorage
   function saveLines() {
@@ -291,22 +314,16 @@ document.addEventListener("DOMContentLoaded", function () {
     saveLines();
   }
 
-  // Activate drawing mode
   drawLineBtn.addEventListener("click", function () {
     isDrawing = true;
     isSelectMode = false;
-    drawLineBtn.classList.add("active");
-    selectLineBtn.classList.remove("active");
     modelContainer.style.cursor = "crosshair";
     renderLines();
   });
 
-  // Activate select mode
   selectLineBtn.addEventListener("click", function () {
     isSelectMode = true;
     isDrawing = false;
-    selectLineBtn.classList.add("active");
-    drawLineBtn.classList.remove("active");
     modelContainer.style.cursor = "pointer";
     renderLines();
   });
@@ -726,7 +743,6 @@ document.addEventListener("DOMContentLoaded", function () {
           // When the pump is OFF, only downstream lines turn gray
           if (lineMapping[pumpIndex]) {
             // Keep upstream lines unchanged
-
             // Change downstream lines to gray
             lineMapping[pumpIndex].downstream.forEach((line) => {
               line.style.background = "#808080"; // Gray color
@@ -1072,7 +1088,7 @@ document.addEventListener("DOMContentLoaded", function () {
       //Enable symbol selection
       enableSymbolSelection();
     } else {
-      selectSymbolBtn.classList.remove  ("active");
+      selectSymbolBtn.classList.remove("active");
       symbolsContainer.style.cursor = "default";
 
       //clear selections when exiting select mode
