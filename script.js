@@ -197,7 +197,6 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedLines = [];
     linesContainer.innerHTML = "";
     saveLines(); //save the empty sate to localStorage
-    alert("Clear all lines successful");
   });
 
   const selectLineBtn = document.getElementById("selectLineBtn");
@@ -270,25 +269,45 @@ document.addEventListener("DOMContentLoaded", function () {
     "selectSymbols",
     "changePosition",
   ];
+  const modeStates = {
+    isDrawing: false,
+    isSelectMode: false,
+    isSymbolSelectMode: false,
+    globalDragMode: false,
+  };
 
   dropdownMenu.addEventListener("click", function (e) {
     const target = e.target;
     if (!target.classList.contains("dropdown-item")) return;
 
-    //check if mode button
+    // Reset tất cả các mode
+    Object.keys(modeStates).forEach((key) => (modeStates[key] = false));
+    modeButtons.forEach((id) =>
+      document.getElementById(id).classList.remove("active")
+    );
+
+    // Kích hoạt mode được chọn
     if (modeButtons.includes(target.id)) {
-      //Delete all class active
-      modeButtons.forEach((id) => {
-        document.getElementById(id).classList.remove("active");
-      });
       target.classList.add("active");
+      switch (target.id) {
+        case "drawLineBtn":
+          modeStates.isDrawing = true;
+          break;
+        case "selectLineBtn":
+          modeStates.isSelectMode = true;
+          break;
+        case "selectSymbols":
+          modeStates.isSymbolSelectMode = true;
+          break;
+        case "changePosition":
+          modeStates.globalDragMode = true;
+          break;
+      }
     }
   });
-
   // Save lines to localStorage
   function saveLines() {
     localStorage.setItem("dashboardLines", JSON.stringify(lines));
-    // alert("Lines saved successfully!");
   }
 
   // Delete selected lines
@@ -1084,10 +1103,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (isSymbolSelectMode) {
       selectSymbolBtn.classList.add("active");
       symbolsContainer.style.cursor = "pointer";
-
       //Enable symbol selection
       enableSymbolSelection();
     } else {
+      isSymbolSelectMode = false;
       selectSymbolBtn.classList.remove("active");
       symbolsContainer.style.cursor = "default";
 
@@ -1114,8 +1133,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Handle symbol selection
   function symbolSelectHandler(e) {
     e.stopPropagation();
-
-    if (!isSymbolSelectMode) return;
+    if (!modeStates.isSymbolSelectMode) return;
+    // if (!isSymbolSelectMode) return;
 
     const symbolId = this.dataset.id;
 
@@ -1147,7 +1166,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Delete selected symbols
   function deleteSelectedSymbols() {
     if (selectedSymbolsToRemove.length === 0) {
-      alert("No symbols selected. Please select symbols to delete.");
       return;
     }
 
@@ -1164,8 +1182,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Re-render symbols
     renderAddedSymbols();
-
-    alert("Selected symbols deleted successfully.");
   }
   // Add Delete key support
   document.addEventListener("keydown", function (e) {
@@ -1435,6 +1451,20 @@ document.addEventListener("DOMContentLoaded", function () {
       document.body.classList.remove("fullscreen-active");
     }
   }
+  const gaugeControllers = {};
+  Object.keys(gaugeConfig).forEach((gaugeId) => {
+    gaugeControllers[gaugeId] = initializeGauge(gaugeId);
+  });
+  setInterval(() => {
+    const gaugeIds = Object.keys(gaugeConfig);
+    const randomGaugeId = gaugeIds[Math.floor(Math.random() * gaugeIds.length)];
+    const randomValue = Math.floor(
+      Math.random() * gaugeConfig[randomGaugeId].maxValue
+    );
+    gaugeControllers[randomGaugeId](randomValue);
+  }, 3000);
+
+  document.getElementById("gauge-oee").classList.add("active");
 });
 /*==============Gauge==========*/
 
@@ -1515,20 +1545,3 @@ function initializeGauge(gaugeId) {
 
   return setGaugeValue;
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const gaugeControllers = {};
-  Object.keys(gaugeConfig).forEach((gaugeId) => {
-    gaugeControllers[gaugeId] = initializeGauge(gaugeId);
-  });
-  setInterval(() => {
-    const gaugeIds = Object.keys(gaugeConfig);
-    const randomGaugeId = gaugeIds[Math.floor(Math.random() * gaugeIds.length)];
-    const randomValue = Math.floor(
-      Math.random() * gaugeConfig[randomGaugeId].maxValue
-    );
-    gaugeControllers[randomGaugeId](randomValue);
-  }, 3000);
-
-  document.getElementById("gauge-oee").classList.add("active");
-});
