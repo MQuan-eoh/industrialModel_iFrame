@@ -2,7 +2,7 @@ const waterContainer = document.querySelector(".tank");
 const waterContainer2 = document.querySelector(".tank-2");
 let currentPumpIndex = 0;
 let currentAnalogIndex = 0;
-
+let globalDragMode = false;
 function waterPump(level) {
   const water = document.getElementById("water");
   const levelWater = document.getElementById("level-text");
@@ -94,20 +94,20 @@ document.addEventListener("DOMContentLoaded", function () {
   //===============Function: Drag and Drop ============
   function makeDraggableTank(element, tankWaterId) {
     let isDragging = false;
-    let initialX;
-    let initialY;
-    let currentX;
-    let currentY;
+    let initialX, initialY, currentX, currentY;
 
     element.addEventListener("mousedown", dragStart);
 
     function dragStart(e) {
+      if (!globalDragMode) return;
+
       e.preventDefault();
       initialX = e.clientX;
       initialY = e.clientY;
       currentX = element.offsetLeft;
       currentY = element.offsetTop;
       isDragging = true;
+
       document.addEventListener("mousemove", drag);
       document.addEventListener("mouseup", dragEnd);
     }
@@ -132,20 +132,20 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   function makeDraggableTank2(element, tankWaterId2) {
     let isDragging = false;
-    let initialX;
-    let initialY;
-    let currentX;
-    let currentY;
+    let initialX, initialY, currentX, currentY;
 
     element.addEventListener("mousedown", dragStart);
 
     function dragStart(e) {
+      if (!globalDragMode) return;
+
       e.preventDefault();
       initialX = e.clientX;
       initialY = e.clientY;
       currentX = element.offsetLeft;
       currentY = element.offsetTop;
       isDragging = true;
+
       document.addEventListener("mousemove", drag);
       document.addEventListener("mouseup", dragEnd);
     }
@@ -173,14 +173,14 @@ document.addEventListener("DOMContentLoaded", function () {
   makeDraggableTank2(waterContainer2, "water2");
   loadTankWater();
   loadTankWater2();
-});
 
-//==========Draw Line Feature==============
-document.addEventListener("DOMContentLoaded", function () {
+  //==========Draw Line Feature==============
+
   const modelContainer = document.querySelector(".model-container");
   const linesContainer = document.querySelector(".lines-container");
   const drawLineBtn = document.getElementById("drawLineBtn");
   const saveLinesBtn = document.getElementById("saveLinesBtn");
+  const changePositionBtn = document.getElementById("changePosition");
 
   let isDrawing = false;
   let isSelectMode = false;
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentLine = null;
   let isCtrlPressed = false;
   let selectedLines = [];
-  //=====Clear All Lines=====
+  //========Clear All Lines=====
   const clearAllButton = document.getElementById("clearAllLines");
   clearAllButton.addEventListener("click", function () {
     console.log("Access to clear all button");
@@ -785,21 +785,37 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 `;
   document.head.appendChild(pumpStyleElement);
-  // Function to make symbols draggable
+
+  //========= Function symbols draggable=======
+  document
+    .querySelector(".dropdown-menu")
+    .addEventListener("click", function (e) {
+      //check click event button Change Position
+      const isDragMode = e.target.id === "changePosition";
+      console.log("Value of isDragMode: ", isDragMode);
+      //Update drag mode state
+      handleDragModeChange(isDragMode);
+      changePositionBtn.classList.add("active");
+      // If without drag mode
+      if (!isDragMode) {
+        document.querySelectorAll(".resize-handle").forEach((handle) => {
+          handle.style.display = "none";
+        });
+        changePositionBtn.classList.remove("active");
+      }
+    });
+  function handleDragModeChange(enable) {
+    globalDragMode = enable;
+  }
+
   function makeDraggableSymbol(element, symbolId) {
     let isDragging = false;
-    let initialX;
-    let initialY;
-    let currentX;
-    let currentY;
+    let initialX, initialY, currentX, currentY;
 
     element.addEventListener("mousedown", dragStart);
 
     function dragStart(e) {
-      // Don't start dragging if we clicked on a resize handle
-      if (e.target !== element) {
-        return;
-      }
+      if (!globalDragMode || e.target !== element) return;
 
       e.preventDefault();
       initialX = e.clientX;
@@ -807,6 +823,7 @@ document.addEventListener("DOMContentLoaded", function () {
       currentX = element.offsetLeft;
       currentY = element.offsetTop;
       isDragging = true;
+
       document.addEventListener("mousemove", drag);
       document.addEventListener("mouseup", dragEnd);
     }
@@ -1055,7 +1072,7 @@ document.addEventListener("DOMContentLoaded", function () {
       //Enable symbol selection
       enableSymbolSelection();
     } else {
-      selectSymbolBtn.classList("active");
+      selectSymbolBtn.classList.remove  ("active");
       symbolsContainer.style.cursor = "default";
 
       //clear selections when exiting select mode
