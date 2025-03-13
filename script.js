@@ -91,8 +91,7 @@ function loadTankWater2() {
   }
 }
 document.addEventListener("DOMContentLoaded", function () {
-  //===============Function: Drag and Drop =============
-
+  //===============Function: Drag and Drop ============
   function makeDraggableTank(element, tankWaterId) {
     let isDragging = false;
     let initialX;
@@ -165,11 +164,11 @@ document.addEventListener("DOMContentLoaded", function () {
       document.removeEventListener("mousemove", drag);
       document.removeEventListener("mouseup", dragEnd);
 
-      // Lưu vị trí sau khi kéo thả
+      //Save position
       saveWaterTankPosition2(element, tankWaterId2);
     }
   }
-  // Gọi makeDraggable với ID tương ứng cho mỗi symbol
+
   makeDraggableTank(waterContainer, "water");
   makeDraggableTank2(waterContainer2, "water2");
   loadTankWater();
@@ -551,29 +550,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const myChart = new Chart(ctx, config);
 
-  // Update tank water levels based on latest data point
-  const updateWaterLevels = () => {
-    const latestValue = data.datasets[0].data[data.datasets[0].data.length - 1];
-    const waterElement = document.getElementById("water");
-    const water2Element = document.getElementById("water2");
-    const levelText = document.getElementById("level-text");
-
-    if (waterElement) {
-      waterElement.style.height = `${latestValue}%`;
-    }
-
-    if (water2Element) {
-      water2Element.style.height = `${latestValue}%`;
-    }
-
-    if (levelText) {
-      const volumeInLiters = Math.round(latestValue * 150);
-      levelText.textContent = `${volumeInLiters}L`;
-    }
-  };
-
-  updateWaterLevels();
-
   setInterval(() => {
     data.datasets[0].data.shift();
     const lastValue = data.datasets[0].data[data.datasets[0].data.length - 1];
@@ -591,8 +567,6 @@ document.addEventListener("DOMContentLoaded", function () {
     data.labels.push(`${hours}:${minutes}:${seconds}`);
 
     myChart.update();
-
-    updateWaterLevels();
   }, 1000);
 
   //==========Add Symbol Feature=============
@@ -679,24 +653,46 @@ document.addEventListener("DOMContentLoaded", function () {
     setupPumpEventListeners();
   }
   function setupPumpEventListeners() {
-    // Get all pump symbols
     const pumpSymbols = document.querySelectorAll(".pump-symbol");
-    // Get all lines
     const drawnLines = document.querySelectorAll(".drawn-line");
+    const lineMapping = {};
+    pumpSymbols.forEach((pump, pumpIndex) => {
+      const pumpRect = pump.getBoundingClientRect();
+      // By default, consider lines to the right of the pump as downstream and to the left as upstream
+      const upstreamLines = [];
+      const downstreamLines = [];
+
+      drawnLines.forEach((line, lineIndex) => {
+        const lineRect = line.getBoundingClientRect();
+        if (lineRect.left >= pumpRect.right) {
+          downstreamLines.push(line);
+        } else if (lineRect.right <= pumpRect.left) {
+          upstreamLines.push(line);
+        } else {
+          if (lineRect.x < pumpRect.x) {
+            upstreamLines.push(line);
+          } else {
+            downstreamLines.push(line);
+          }
+        }
+      });
+
+      lineMapping[pumpIndex] = {
+        upstream: upstreamLines,
+        downstream: downstreamLines,
+      };
+    });
 
     // Store pump states (we'll use dataset to track state)
     pumpSymbols.forEach((pump, index) => {
       pump.dataset.state = "off";
       pump.addEventListener("click", function () {
-        const symbolItem = document.createElement("div");
-        symbolItem.style.cursor = "pointer;";
         const pumpIndex = index; // Use index to differentiate between pumps
         const currentState = this.dataset.state;
 
         if (currentState === "off") {
-          // Turn pump on
+          // Turn pump ON
           console.log(`Turning pump ${pumpIndex + 1} ON`);
-          console.log("Pump index: ", pumpIndex);
           if (pumpIndex === 0 && onPump1) {
             eraWidget.triggerAction(onPump1.action, null);
           } else if (pumpIndex === 1 && onPump2) {
@@ -704,15 +700,20 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           this.dataset.state = "on";
           this.classList.add("pump-active"); // Add visual indicator class
-          //Restore line color to default when pump is ON
-          drawnLines.forEach((line) => {
-            line.style.background = ""; //Delete style to reuse default CSS
 
-            //Restore CSS for ::before animation
-            updateLineAnimationColor(line, "rgba(255, 255, 255, 0.8)");
-          });
+          // When the pump is ON, all lines (both upstream and downstream) are active
+          if (lineMapping[pumpIndex]) {
+            // Restore color for all lines (upstream and downstream)
+            [
+              ...lineMapping[pumpIndex].upstream,
+              ...lineMapping[pumpIndex].downstream,
+            ].forEach((line) => {
+              line.style.background = ""; // Remove inline style to use default CSS
+              updateLineAnimationColor(line, "rgba(255, 255, 255, 0.8)");
+            });
+          }
         } else {
-          // Turn pump off
+          // Turn pump OFF
           console.log(`Turning pump ${pumpIndex + 1} OFF`);
           if (pumpIndex === 0 && offPump1) {
             eraWidget.triggerAction(offPump1.action, null);
@@ -722,17 +723,23 @@ document.addEventListener("DOMContentLoaded", function () {
           this.dataset.state = "off";
           this.classList.remove("pump-active"); // Remove visual indicator class
 
-          drawnLines.forEach((line) => {
-            line.style.background = "#808080"; //Grey
-            //Change CSS ::before animation
-            updateLineAnimationColor(line, "#808080");
-          });
+          // When the pump is OFF, only downstream lines turn gray
+          if (lineMapping[pumpIndex]) {
+            // Keep upstream lines unchanged
+
+            // Change downstream lines to gray
+            lineMapping[pumpIndex].downstream.forEach((line) => {
+              line.style.background = "#808080"; // Gray color
+              updateLineAnimationColor(line, "#808080");
+            });
+          }
         }
       });
     });
   }
+
   function updateLineAnimationColor(lineElement, color) {
-    //create a new stylesheet or using an existing stylesheet
+    // Create a new stylesheet or use an existing one
     let styleEl = document.getElementById("dynamic-line-styles");
     if (!styleEl) {
       styleEl = document.createElement("style");
@@ -740,12 +747,12 @@ document.addEventListener("DOMContentLoaded", function () {
       document.head.appendChild(styleEl);
     }
 
-    // create a unique id with line element
+    // Generate a unique ID for this line element if it doesn't already have one
     if (!lineElement.id) {
       lineElement.id = "line-" + Math.random().toString(36).substr(2, 9);
     }
 
-    // Update CSS with new effect line
+    // Update CSS with a specific selector for this line element
     const cssText = `
     #${lineElement.id}::before {
       content: "";
@@ -768,6 +775,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     styleEl.textContent += cssText;
   }
+
   // Add CSS for active pump indicators
   const pumpStyleElement = document.createElement("style");
   pumpStyleElement.textContent = `
@@ -1190,22 +1198,28 @@ document.addEventListener("DOMContentLoaded", function () {
       handleElements[position] = handle;
     });
 
-    // Show/hide handles on mouse enter/leave
-    element.addEventListener("mouseenter", function () {
-      handles.forEach((position) => {
-        handleElements[position].style.display = "block";
-      });
-    });
+    // Toggle handles visibility on double click
+    element.addEventListener("dblclick", function (e) {
+      const areHandlesVisible = handleElements["nw"].style.display === "block";
 
-    element.addEventListener("mouseleave", function (e) {
-      // Only hide if we're not currently resizing and not hovering a handle
-      if (
-        !isResizing &&
-        !handles.some((pos) => e.relatedTarget === handleElements[pos])
-      ) {
-        handles.forEach((position) => {
-          handleElements[position].style.display = "none";
-        });
+      // Toggle all handles
+      handles.forEach((position) => {
+        handleElements[position].style.display = areHandlesVisible
+          ? "none"
+          : "block";
+      });
+
+      // Add click outside listener if handles are shown
+      if (!areHandlesVisible) {
+        const clickOutsideHandler = (event) => {
+          if (!element.contains(event.target)) {
+            handles.forEach((position) => {
+              handleElements[position].style.display = "none";
+            });
+            document.removeEventListener("mousedown", clickOutsideHandler);
+          }
+        };
+        document.addEventListener("mousedown", clickOutsideHandler);
       }
     });
 
@@ -1220,7 +1234,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       handle.addEventListener("mousedown", function (e) {
         e.preventDefault();
-        e.stopPropagation(); // Prevent dragging from starting
+        e.stopPropagation();
 
         isResizing = true;
         currentHandle = position;
@@ -1241,7 +1255,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function resize(e) {
       if (!isResizing) return;
 
-      // Calculate new dimensions
       let newWidth = startWidth;
       let newHeight = startHeight;
       let newLeft = startLeft;
@@ -1250,51 +1263,32 @@ document.addEventListener("DOMContentLoaded", function () {
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
 
-      // Calculate aspect ratio for proportional resizing
-      const aspectRatio = startWidth / startHeight;
-
-      // Adjust based on which handle is being dragged
-      if (currentHandle.includes("e")) {
-        // Right
-        newWidth = startWidth + dx;
-        // Maintain minimum size
-        newWidth = Math.max(newWidth, 20);
-      }
+      // Adjust based on handle position
+      if (currentHandle.includes("e")) newWidth = Math.max(startWidth + dx, 20);
       if (currentHandle.includes("w")) {
-        // Left
-        const widthChange = Math.min(startWidth - 20, dx);
-        newWidth = startWidth - widthChange;
-        newLeft = startLeft + widthChange;
+        newWidth = Math.max(startWidth - dx, 20);
+        newLeft = startLeft + dx;
       }
-      if (currentHandle.includes("s")) {
-        // Bottom
-        newHeight = startHeight + dy;
-        // Maintain minimum size
-        newHeight = Math.max(newHeight, 20);
-      }
+      if (currentHandle.includes("s"))
+        newHeight = Math.max(startHeight + dy, 20);
       if (currentHandle.includes("n")) {
-        // Top
-        const heightChange = Math.min(startHeight - 20, dy);
-        newHeight = startHeight - heightChange;
-        newTop = startTop + heightChange;
+        newHeight = Math.max(startHeight - dy, 20);
+        newTop = startTop + dy;
       }
 
-      // Apply new dimensions
       element.style.width = `${newWidth}px`;
-      element.style.height = "auto"; // Maintain aspect ratio for image
+      element.style.height = "auto";
       element.style.left = `${newLeft}px`;
       element.style.top = `${newTop}px`;
     }
 
     // Stop resizing
     function stopResize() {
-      if (!isResizing) return;
-
       isResizing = false;
       document.removeEventListener("mousemove", resize);
       document.removeEventListener("mouseup", stopResize);
 
-      // Save the new dimensions to the symbol collection
+      // Save dimensions
       const symbolIndex = collectionSymbol.findIndex((s) => s.id === symbolId);
       if (symbolIndex !== -1) {
         collectionSymbol[symbolIndex].width = element.style.width;
@@ -1305,6 +1299,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
+
   //============E-Ra Services=======
   const eraWidget = new EraWidget();
   let lastTank1Value = NaN;
