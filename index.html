@@ -24,7 +24,7 @@
       <div class="row">
         <div class="col-md-3">
           <div class="card">
-            <h2 style="font-size: 1.3rem">OEE</h2>
+            <h2 style="font-size: 1.3rem">Máy Bơm</h2>
             <div class="gauge" id="gauge-oee">
               <div class="color-zones"></div>
               <div class="gauge-face">
@@ -39,7 +39,7 @@
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h2 style="font-size: 1.3rem">Performance</h2>
+            <h2 style="font-size: 1.3rem">Trạm Xử Lý Nước</h2>
             <div class="gauge" id="gauge-performance">
               <div class="color-zones"></div>
               <div class="gauge-face">
@@ -54,7 +54,7 @@
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h2 style="font-size: 1.3rem">Quality</h2>
+            <h2 style="font-size: 1.3rem">Máy Lọc</h2>
             <div class="gauge" id="gauge-quality">
               <div class="color-zones"></div>
               <div class="gauge-face">
@@ -69,7 +69,7 @@
         </div>
         <div class="col-md-3">
           <div class="card">
-            <h2 style="font-size: 1.3rem">Availability</h2>
+            <h2 style="font-size: 1.3rem">Van xả tổng</h2>
             <div class="gauge" id="gauge-availability">
               <div class="color-zones"></div>
               <div class="gauge-face">
@@ -86,9 +86,98 @@
       <div class="row">
         <div class="col-md-12">
           <div class="card">
-            <h2 style="font-size: 1.3rem">Product group</h2>
-            <p>Black</p>
-            tank
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+            >
+              <h2 style="font-size: 1.3rem">Product Group Health Assessment</h2>
+              <div class="dropdown">
+                <button
+                  class="btn btn-sm btn-outline-secondary"
+                  type="button"
+                  id="timeRangeDropdown"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <i class="fas fa-cog"></i>
+                </button>
+                <div
+                  class="dropdown-menu dropdown-menu-right"
+                  aria-labelledby="timeRangeDropdown"
+                >
+                  <a class="dropdown-item" href="#" data-time="5"
+                    >Last 5 minutes</a
+                  >
+                  <a class="dropdown-item" href="#" data-time="10"
+                    >Last 10 minutes</a
+                  >
+                  <a class="dropdown-item" href="#" data-time="60">Last hour</a>
+                  <a class="dropdown-item" href="#" data-time="1440"
+                    >Last day</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="device-health-card" data-source="gauge-oee">
+                    <h4>Máy Bơm</h4>
+                    <div class="health-indicator">
+                      <div class="health-status"></div>
+                      <div class="health-value">--</div>
+                    </div>
+                    <div class="health-trend">
+                      <canvas class="health-chart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div
+                    class="device-health-card"
+                    data-source="gauge-performance"
+                  >
+                    <h4>Trạm Xử Lý Nước</h4>
+                    <div class="health-indicator">
+                      <div class="health-status"></div>
+                      <div class="health-value">--</div>
+                    </div>
+                    <div class="health-trend">
+                      <canvas class="health-chart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="device-health-card" data-source="gauge-quality">
+                    <h4>Máy Lọc</h4>
+                    <div class="health-indicator">
+                      <div class="health-status"></div>
+                      <div class="health-value">--</div>
+                    </div>
+                    <div class="health-trend">
+                      <canvas class="health-chart"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div
+                    class="device-health-card"
+                    data-source="gauge-availability"
+                  >
+                    <h4>Van xả tổng</h4>
+                    <div class="health-indicator">
+                      <div class="health-status"></div>
+                      <div class="health-value">--</div>
+                    </div>
+                    <div class="health-trend">
+                      <canvas class="health-chart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

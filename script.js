@@ -1592,6 +1592,190 @@ document.addEventListener("DOMContentLoaded", function () {
   Object.keys(gaugeConfig).forEach((gaugeId) => {
     gaugeControllers[gaugeId] = initializeGauge(gaugeId);
   });
+  //=============Heath of device =============
+  const charts = {};
+  const healthData = {
+    "gauge-oee": { values: [], timestamps: [] },
+    "gauge-performance": { values: [], timestamps: [] },
+    "gauge-quality": { values: [], timestamps: [] },
+    "gauge-availability": { values: [], timestamps: [] },
+  };
+
+  // Time range in minutes (default: 10 minutes)
+  let timeRange = 10;
+
+  // Setup charts
+  document.querySelectorAll(".device-health-card").forEach((card) => {
+    const sourceId = card.dataset.source;
+    const canvas = card.querySelector(".health-chart");
+
+    charts[sourceId] = new Chart(canvas, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            data: [],
+            borderColor: "#007bff",
+            backgroundColor: "rgba(0, 123, 255, 0.1)",
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.4,
+            fill: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: true },
+        },
+        scales: {
+          x: { display: false },
+          y: {
+            display: false,
+            min: 0,
+            max: 180,
+          },
+        },
+        animation: false,
+      },
+    });
+  });
+
+  // Function to update health status based on value
+  function updateHealthStatus(element, value) {
+    const statusElement = element.querySelector(".health-status");
+    const valueElement = element.querySelector(".health-value");
+
+    valueElement.textContent = value;
+
+    // Remove all status classes
+    statusElement.classList.remove(
+      "status-good",
+      "status-warning",
+      "status-alert",
+      "status-critical"
+    );
+
+    // Add appropriate status class
+    if (value >= 0 && value < 45) {
+      statusElement.classList.add("status-good");
+    } else if (value >= 45 && value < 90) {
+      statusElement.classList.add("status-warning");
+    } else if (value >= 90 && value < 135) {
+      statusElement.classList.add("status-alert");
+    } else {
+      statusElement.classList.add("status-critical");
+    }
+  }
+
+  // Function to update chart data
+  function updateChartData(sourceId, value) {
+    const now = new Date();
+
+    // Add new data point
+    healthData[sourceId].values.push(value);
+    healthData[sourceId].timestamps.push(now);
+
+    // Remove data points outside the time range
+    const cutoffTime = new Date(now.getTime() - timeRange * 60 * 1000);
+
+    while (
+      healthData[sourceId].timestamps.length > 0 &&
+      healthData[sourceId].timestamps[0] < cutoffTime
+    ) {
+      healthData[sourceId].values.shift();
+      healthData[sourceId].timestamps.shift();
+    }
+
+    // Update chart
+    const chart = charts[sourceId];
+    chart.data.labels = healthData[sourceId].timestamps.map((t) =>
+      t.toLocaleTimeString()
+    );
+    chart.data.datasets[0].data = healthData[sourceId].values;
+    chart.update();
+  }
+
+  // Listen for gauge value changes
+  const originalSetGaugeValue = {};
+
+  // Override the setGaugeValue function
+  Object.keys(gaugeConfig).forEach((gaugeId) => {
+    // Store original function for later use
+    const originalGaugeController = gaugeControllers[gaugeId];
+
+    // Create wrapper that captures values
+    gaugeControllers[gaugeId] = function (value) {
+      // Call original function
+      originalGaugeController(value);
+
+      // Find the corresponding health card and update it
+      const healthCard = document.querySelector(
+        `.device-health-card[data-source="${gaugeId}"]`
+      );
+      if (healthCard) {
+        updateHealthStatus(healthCard, value);
+        updateChartData(gaugeId, value);
+      }
+
+      // Log for health assessment
+      console.log(`Health assessment for ${gaugeId}: ${value}`);
+    };
+  });
+
+  // Time range selector
+  document.querySelectorAll(".dropdown-item").forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      timeRange = parseInt(this.dataset.time);
+      document.getElementById("timeRangeDropdown").textContent =
+        this.textContent;
+
+      // Clear old data that's now outside the time range
+      const now = new Date();
+      const cutoffTime = new Date(now.getTime() - timeRange * 60 * 1000);
+
+      Object.keys(healthData).forEach((sourceId) => {
+        while (
+          healthData[sourceId].timestamps.length > 0 &&
+          healthData[sourceId].timestamps[0] < cutoffTime
+        ) {
+          healthData[sourceId].values.shift();
+          healthData[sourceId].timestamps.shift();
+        }
+
+        // Update chart
+        const chart = charts[sourceId];
+        chart.data.labels = healthData[sourceId].timestamps.map((t) =>
+          t.toLocaleTimeString()
+        );
+        chart.data.datasets[0].data = healthData[sourceId].values;
+        chart.update();
+      });
+
+      console.log(`Time range changed to ${timeRange} minutes`);
+    });
+  });
+
+  // Initialize with current gauge values
+  Object.keys(gaugeConfig).forEach((gaugeId) => {
+    const valueDisplay = document.querySelector(`#${gaugeId} .value-display`);
+    if (valueDisplay) {
+      const value = parseInt(valueDisplay.textContent);
+      const healthCard = document.querySelector(
+        `.device-health-card[data-source="${gaugeId}"]`
+      );
+      if (healthCard) {
+        updateHealthStatus(healthCard, value);
+        updateChartData(gaugeId, value);
+      }
+    }
+  });
+
   setInterval(() => {
     const gaugeIds = Object.keys(gaugeConfig);
     const randomGaugeId = gaugeIds[Math.floor(Math.random() * gaugeIds.length)];
@@ -1604,7 +1788,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("gauge-oee").classList.add("active");
 });
 /*==============Gauge==========*/
-
 const gaugeConfig = {
   "gauge-oee": { initialValue: 50, minValue: 0, maxValue: 180 },
   "gauge-performance": { initialValue: 50, minValue: 0, maxValue: 180 },
