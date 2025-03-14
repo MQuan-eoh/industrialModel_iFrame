@@ -1865,3 +1865,34 @@ function initializeGauge(gaugeId) {
 
   return setGaugeValue;
 }
+//=============Side Bar=============
+// document.getElementById("sidebarToggle").addEventListener("click", function () {
+//   document.getElementById("sidebar").classList.toggle("active");
+// });
+
+// // Xử lý active menu item
+// const menuItems = document.querySelectorAll(".sidebar-menu a");
+// menuItems.forEach((item) => {
+//   item.addEventListener("click", function () {
+//     menuItems.forEach((i) => i.classList.remove("active"));
+//     this.classList.add("active");
+
+//     // Xử lý chuyển đổi view (có thể thêm sau)
+//     const id = this.id;
+//     console.log(`Clicked on ${id}`);
+
+//     // Ví dụ về xử lý chuyển đổi view
+//     switch (id) {
+//       case "dashboardLink":
+//         // Hiển thị dashboard
+//         break;
+//       case "pumpLink":
+//         // Hiển thị thông tin máy bơm
+//         break;
+//       case "waterTreatmentLink":
+//         // Hiển thị thông tin trạm xử lý
+//         break;
+//       // Thêm các case khác tương ứng với các menu item
+//     }
+//   });
+// });
