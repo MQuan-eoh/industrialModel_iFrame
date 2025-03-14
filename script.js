@@ -92,11 +92,38 @@ function loadTankWater2() {
 }
 document.addEventListener("DOMContentLoaded", function () {
   //===============Function: Drag and Drop ============
+  //Management event listener
+  const eventListenerRegistry = {
+    listeners: {},
+    add: function (element, eventType, handler, id) {
+      const listenerId =
+        id || `${element.id || "unknown"}-${eventType}-${Math.random()}`;
+      element.addEventListener(eventType, handler);
+      this.listeners[listenerId] = { element, eventType, handler };
+      return listenerId;
+    },
+    remove: function (id) {
+      if (this.listeners[id]) {
+        const { element, eventType, handler } = this.listeners[id];
+        element.removeEventListener(eventType, handler);
+        delete this.listeners[id];
+      }
+    },
+    removeAll: function () {
+      Object.keys(this.listeners).forEach((id) => this.remove(id));
+    },
+  };
+
   function makeDraggableTank(element, tankWaterId) {
     let isDragging = false;
     let initialX, initialY, currentX, currentY;
+    let mouseDownListenerId, mouseMoveListenerId, mouseUpListenerId;
 
-    element.addEventListener("mousedown", dragStart);
+    mouseDownListenerId = eventListenerRegistry.add(
+      element,
+      "mousedown",
+      dragStart
+    );
 
     function dragStart(e) {
       if (!globalDragMode) return;
@@ -108,8 +135,16 @@ document.addEventListener("DOMContentLoaded", function () {
       currentY = element.offsetTop;
       isDragging = true;
 
-      document.addEventListener("mousemove", drag);
-      document.addEventListener("mouseup", dragEnd);
+      mouseMoveListenerId = eventListenerRegistry.add(
+        document,
+        "mousemove",
+        drag
+      );
+      mouseUpListenerId = eventListenerRegistry.add(
+        document,
+        "mouseup",
+        dragEnd
+      );
     }
 
     function drag(e) {
@@ -123,12 +158,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function dragEnd() {
       isDragging = false;
-      document.removeEventListener("mousemove", drag);
-      document.removeEventListener("mouseup", dragEnd);
+      eventListenerRegistry.remove(mouseMoveListenerId);
+      eventListenerRegistry.remove(mouseUpListenerId);
 
       // Lưu vị trí sau khi kéo thả
       saveWaterTankPosition(element, tankWaterId);
     }
+
+    // Trả về hàm để xóa event listener khi không cần thiết
+    return function cleanUp() {
+      eventListenerRegistry.remove(mouseDownListenerId);
+    };
   }
   function makeDraggableTank2(element, tankWaterId2) {
     let isDragging = false;
@@ -773,21 +813,62 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function updateLineAnimationColor(lineElement, color) {
-    // Create a new stylesheet or use an existing one
-    let styleEl = document.getElementById("dynamic-line-styles");
-    if (!styleEl) {
-      styleEl = document.createElement("style");
-      styleEl.id = "dynamic-line-styles";
-      document.head.appendChild(styleEl);
-    }
+  //Management of Animations and Intervals
+  const intervalRegistry = {
+    intervals: {},
+    add: function (callback, delay, id) {
+      const intervalId = id || `interval-${Math.random()}`;
+      this.intervals[intervalId] = setInterval(callback, delay);
+      return intervalId;
+    },
+    remove: function (id) {
+      if (this.intervals[id]) {
+        clearInterval(this.intervals[id]);
+        delete this.intervals[id];
+      }
+    },
+    removeAll: function () {
+      Object.keys(this.intervals).forEach((id) => this.remove(id));
+    },
+  };
 
-    // Generate a unique ID for this line element if it doesn't already have one
+  //Management of Style Elements
+  const styleRegistry = {
+    styles: {},
+    add: function (id, cssText) {
+      //Create style element if it does not exist
+      if (!this.styles[id]) {
+        const styleEl = document.createElement("style");
+        styleEl.id = id;
+        document.head.appendChild(styleEl);
+        this.styles[id] = styleEl;
+      }
+
+      //Update SS
+      this.styles[id].textContent = cssText;
+      return id;
+    },
+    remove: function (id) {
+      if (this.styles[id]) {
+        const styleEl = this.styles[id];
+        if (styleEl.parentNode) {
+          styleEl.parentNode.removeChild(styleEl);
+        }
+        delete this.styles[id];
+      }
+    },
+    removeAll: function () {
+      Object.keys(this.styles).forEach((id) => this.remove(id));
+    },
+  };
+
+  function updateLineAnimationColor(lineElement, color) {
+    //Generate a unique ID for lineElement if it doesn't already exist.
     if (!lineElement.id) {
       lineElement.id = "line-" + Math.random().toString(36).substr(2, 9);
     }
 
-    // Update CSS with a specific selector for this line element
+    //Create CSS lineElement
     const cssText = `
     #${lineElement.id}::before {
       content: "";
@@ -808,7 +889,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   `;
 
-    styleEl.textContent += cssText;
+    //Add or update style element
+    styleRegistry.add(`dynamic-line-styles-${lineElement.id}`, cssText);
   }
 
   // Add CSS for active pump indicators
@@ -846,8 +928,13 @@ document.addEventListener("DOMContentLoaded", function () {
   function makeDraggableSymbol(element, symbolId) {
     let isDragging = false;
     let initialX, initialY, currentX, currentY;
+    let mouseDownListenerId, mouseMoveListenerId, mouseUpListenerId;
 
-    element.addEventListener("mousedown", dragStart);
+    mouseDownListenerId = eventListenerRegistry.add(
+      element,
+      "mousedown",
+      dragStart
+    );
 
     function dragStart(e) {
       if (!globalDragMode || e.target !== element) return;
@@ -859,8 +946,16 @@ document.addEventListener("DOMContentLoaded", function () {
       currentY = element.offsetTop;
       isDragging = true;
 
-      document.addEventListener("mousemove", drag);
-      document.addEventListener("mouseup", dragEnd);
+      mouseMoveListenerId = eventListenerRegistry.add(
+        document,
+        "mousemove",
+        drag
+      );
+      mouseUpListenerId = eventListenerRegistry.add(
+        document,
+        "mouseup",
+        dragEnd
+      );
     }
 
     function drag(e) {
@@ -874,8 +969,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function dragEnd() {
       isDragging = false;
-      document.removeEventListener("mousemove", drag);
-      document.removeEventListener("mouseup", dragEnd);
+      eventListenerRegistry.remove(mouseMoveListenerId);
+      eventListenerRegistry.remove(mouseUpListenerId);
 
       // Save position after drag
       const symbolIndex = collectionSymbol.findIndex((s) => s.id === symbolId);
@@ -885,6 +980,11 @@ document.addEventListener("DOMContentLoaded", function () {
         saveSymbolCollection();
       }
     }
+
+    //Remove event listener when not needed
+    return function cleanUp() {
+      eventListenerRegistry.remove(mouseDownListenerId);
+    };
   }
   // Create Symbol Picker modal
   function createSymbolPickerModal() {
