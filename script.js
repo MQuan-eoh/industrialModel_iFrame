@@ -679,8 +679,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //function to render added Symbols on the model Container
   function renderAddedSymbols() {
-    const existingAddedSymbols = document.querySelectorAll(".symbol-wrapper");
-    existingAddedSymbols.forEach((symbol) => symbol.remove());
+    // Xóa các symbol hiện có
+    document.querySelectorAll(".symbol-wrapper").forEach((symbol) => {
+      const symbolId = symbol.dataset.id;
+      if (symbolId) {
+        elementRegistry.remove(symbolId);
+      } else {
+        symbol.remove();
+      }
+    });
 
     collectionSymbol.forEach((symbol) => {
       // Create wrapper div
@@ -721,8 +728,14 @@ document.addEventListener("DOMContentLoaded", function () {
       document.querySelector(".model-container").appendChild(wrapper);
 
       // Add resize and drag functionality
-      makeDraggableSymbol(wrapper, symbol.id);
-      makeResizable(wrapper, symbol.id);
+      const dragCleanUp = makeDraggableSymbol(wrapper, symbol.id);
+      const resizeCleanUp = makeResizable(wrapper, symbol.id);
+
+      // Đăng ký element vào registry
+      elementRegistry.add(symbol.id, wrapper, function () {
+        dragCleanUp();
+        resizeCleanUp();
+      });
     });
 
     // After rendering all symbols, set up pump event listeners
@@ -812,6 +825,30 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  const elementRegistry = {
+    elements: {},
+    add: function (id, element, cleanUpFunction) {
+      this.elements[id] = {
+        element,
+        cleanUp: cleanUpFunction || function () {},
+      };
+      return id;
+    },
+    remove: function (id) {
+      if (this.elements[id]) {
+        this.elements[id].cleanUp();
+        const element = this.elements[id].element;
+        if (element && element.parentNode) {
+          element.parentNode.removeChild(element);
+        }
+        delete this.elements[id];
+      }
+    },
+    removeAll: function () {
+      Object.keys(this.elements).forEach((id) => this.remove(id));
+    },
+  };
 
   //Management of Animations and Intervals
   const intervalRegistry = {
