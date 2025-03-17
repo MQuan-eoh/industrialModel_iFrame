@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   //========Management of drop down menu=========
   //Add Click Event for Dropdown menu - management active mode
-  const dropdownMenu = document.querySelector(".dropdown-menu");
+  const dropdownMenu = document.getElementById("drawingToolsDropdown");
   const modeButtons = [
     "drawLineBtn",
     "selectLineBtn",
@@ -320,13 +320,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const target = e.target;
     if (!target.classList.contains("dropdown-item")) return;
 
-    // Reset tất cả các mode
+    //Reset all mode
     Object.keys(modeStates).forEach((key) => (modeStates[key] = false));
     modeButtons.forEach((id) =>
       document.getElementById(id).classList.remove("active")
     );
 
-    // Kích hoạt mode được chọn
+    //Active selected mode
     if (modeButtons.includes(target.id)) {
       target.classList.add("active");
       switch (target.id) {
@@ -731,10 +731,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const dragCleanUp = makeDraggableSymbol(wrapper, symbol.id);
       const resizeCleanUp = makeResizable(wrapper, symbol.id);
 
-      // Đăng ký element vào registry
+      //register element to registry
       elementRegistry.add(symbol.id, wrapper, function () {
         dragCleanUp();
-        resizeCleanUp();
+        // resizeCleanUp();
       });
     });
 
@@ -1237,17 +1237,15 @@ document.addEventListener("DOMContentLoaded", function () {
   selectSymbolBtn.addEventListener("click", function () {
     console.log("Access to the select symbols");
     isSymbolSelectMode = !isSymbolSelectMode;
-    if (isSymbolSelectMode) {
+    modeStates.isSymbolSelectMode = !modeStates.isSymbolSelectMode;
+
+    if (modeStates.isSymbolSelectMode) {
       selectSymbolBtn.classList.add("active");
       symbolsContainer.style.cursor = "pointer";
-      //Enable symbol selection
       enableSymbolSelection();
     } else {
-      isSymbolSelectMode = false;
       selectSymbolBtn.classList.remove("active");
       symbolsContainer.style.cursor = "default";
-
-      //clear selections when exiting select mode
       selectedSymbolsToRemove = [];
       updateSymbolSelections();
     }
@@ -1592,6 +1590,7 @@ document.addEventListener("DOMContentLoaded", function () {
   Object.keys(gaugeConfig).forEach((gaugeId) => {
     gaugeControllers[gaugeId] = initializeGauge(gaugeId);
   });
+
   //=============Heath of device =============
   const charts = {};
   const healthData = {
@@ -1672,7 +1671,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Function to update chart data
+  // =====Function to update chart data========
   function updateChartData(sourceId, value) {
     const now = new Date();
 
@@ -1700,9 +1699,6 @@ document.addEventListener("DOMContentLoaded", function () {
     chart.update();
   }
 
-  // Listen for gauge value changes
-  const originalSetGaugeValue = {};
-
   // Override the setGaugeValue function
   Object.keys(gaugeConfig).forEach((gaugeId) => {
     // Store original function for later use
@@ -1727,40 +1723,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   });
 
-  // Time range selector
-  document.querySelectorAll(".dropdown-item").forEach((item) => {
-    item.addEventListener("click", function (e) {
-      e.preventDefault();
-      timeRange = parseInt(this.dataset.time);
-      document.getElementById("timeRangeDropdown").textContent =
-        this.textContent;
-
-      // Clear old data that's now outside the time range
-      const now = new Date();
-      const cutoffTime = new Date(now.getTime() - timeRange * 60 * 1000);
-
-      Object.keys(healthData).forEach((sourceId) => {
-        while (
-          healthData[sourceId].timestamps.length > 0 &&
-          healthData[sourceId].timestamps[0] < cutoffTime
-        ) {
-          healthData[sourceId].values.shift();
-          healthData[sourceId].timestamps.shift();
-        }
-
-        // Update chart
-        const chart = charts[sourceId];
-        chart.data.labels = healthData[sourceId].timestamps.map((t) =>
-          t.toLocaleTimeString()
-        );
-        chart.data.datasets[0].data = healthData[sourceId].values;
-        chart.update();
-      });
-
-      console.log(`Time range changed to ${timeRange} minutes`);
-    });
-  });
-
   // Initialize with current gauge values
   Object.keys(gaugeConfig).forEach((gaugeId) => {
     const valueDisplay = document.querySelector(`#${gaugeId} .value-display`);
@@ -1776,6 +1738,177 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  //======Processing timeRange of Health Assessment==========
+  // Add this JavaScript to integrate with the existing code
+
+  // Define the time range variable (already used in the existing code)
+  let timeRangeHealth = 30; // Default to 30 minutes
+
+  // Initialize the dropdown toggle button
+  document
+    .getElementById("productGroupDropdownToggle")
+    .addEventListener("click", function () {
+      document
+        .getElementById("productGroupTimeRangeDropdown")
+        .classList.toggle("show");
+    });
+
+  // Close the dropdown when clicking outside
+  window.addEventListener("click", function (event) {
+    if (!event.target.matches("#productGroupDropdownToggle")) {
+      const dropdown = document.getElementById("productGroupTimeRangeDropdown");
+      if (dropdown.classList.contains("show")) {
+        dropdown.classList.remove("show");
+      }
+    }
+  });
+
+  // Handle time range selection
+  document
+    .querySelectorAll("#productGroupTimeRangeDropdown .dropdown-item")
+    .forEach((item) => {
+      item.addEventListener("click", function () {
+        // Update the timeRange value
+        timeRangeHealth = parseInt(this.getAttribute("data-minutes"));
+
+        // Update the button text
+        document.getElementById("productGroupDropdownToggle").textContent =
+          this.textContent;
+
+        // Close the dropdown
+        document
+          .getElementById("productGroupTimeRangeDropdown")
+          .classList.remove("show");
+
+        // Update all charts with the new time range
+        updateAllCharts();
+      });
+    });
+
+  // Function to update all charts with the current time range
+  function updateAllCharts() {
+    const now = new Date();
+    const cutoffTime = new Date(now.getTime() - timeRangeHealth * 60 * 1000);
+
+    // Update all charts
+    Object.keys(healthData).forEach((sourceId) => {
+      // Filter data based on the new time range
+      const filteredData = {
+        values: [],
+        timestamps: [],
+      };
+
+      // Find the index of the first timestamp that's within the new time range
+      let startIndex = 0;
+      for (let i = 0; i < healthData[sourceId].timestamps.length; i++) {
+        if (healthData[sourceId].timestamps[i] >= cutoffTime) {
+          startIndex = i;
+          break;
+        }
+      }
+
+      // Copy data from the found index to the end
+      filteredData.values = healthData[sourceId].values.slice(startIndex);
+      filteredData.timestamps =
+        healthData[sourceId].timestamps.slice(startIndex);
+
+      // Update the chart with filtered data
+      const chart = charts[sourceId];
+      chart.data.labels = filteredData.timestamps.map((t) =>
+        t.toLocaleTimeString()
+      );
+      chart.data.datasets[0].data = filteredData.values;
+      chart.update();
+    });
+  }
+
+  // Update the existing updateChartData function to respect the new time range
+  const originalUpdateChartData = updateChartData;
+  updateChartData = function (sourceId, value) {
+    const now = new Date();
+
+    // Add new data point
+    healthData[sourceId].values.push(value);
+    healthData[sourceId].timestamps.push(now);
+
+    // Remove data points outside the time range
+    const cutoffTime = new Date(now.getTime() - timeRangeHealth * 60 * 1000);
+
+    while (
+      healthData[sourceId].timestamps.length > 0 &&
+      healthData[sourceId].timestamps[0] < cutoffTime
+    ) {
+      healthData[sourceId].values.shift();
+      healthData[sourceId].timestamps.shift();
+    }
+
+    // Update chart
+    const chart = charts[sourceId];
+    chart.data.labels = healthData[sourceId].timestamps.map((t) =>
+      t.toLocaleTimeString()
+    );
+    chart.data.datasets[0].data = healthData[sourceId].values;
+    chart.update();
+  };
+
+  // Update the interval for random data generation based on the selected time range
+  const originalInterval = setInterval;
+  setInterval = function (callback, delay) {
+    const intervalId = originalInterval(callback, delay);
+
+    // Store the interval ID so we can clear it later if needed
+    if (callback.toString().includes("randomGaugeId")) {
+      window.randomDataIntervalId = intervalId;
+    }
+
+    return intervalId;
+  };
+
+  // Function to adjust the data generation interval based on time range
+  function adjustDataGenerationInterval() {
+    // Clear existing interval
+    if (window.randomDataIntervalId) {
+      clearInterval(window.randomDataIntervalId);
+    }
+
+    // Set new interval based on time range
+    let newInterval = 3000; // Default
+
+    if (timeRangeHealth >= 1440) {
+      // 1 day
+      newInterval = 30000; // Every 30 seconds for day view
+    } else if (timeRangeHealth >= 30) {
+      // 30 minutes
+      newInterval = 5000; // Every 5 seconds for 30 minute view
+    } else if (timeRangeHealth >= 10) {
+      // 10 minutes
+      newInterval = 3000; // Every 3 seconds for 10 minute view
+    } else {
+      // Realtime
+      newInterval = 1000; // Every second for realtime view
+    }
+
+    // Create new interval
+    window.randomDataIntervalId = setInterval(() => {
+      const gaugeIds = Object.keys(gaugeConfig);
+      const randomGaugeId =
+        gaugeIds[Math.floor(Math.random() * gaugeIds.length)];
+      const randomValue = Math.floor(
+        Math.random() * gaugeConfig[randomGaugeId].maxValue
+      );
+      gaugeControllers[randomGaugeId](randomValue);
+    }, newInterval);
+  }
+
+  // Update interval when time range changes
+  document
+    .querySelectorAll("#productGroupTimeRangeDropdown .dropdown-item")
+    .forEach((item) => {
+      item.addEventListener("click", adjustDataGenerationInterval);
+    });
+
+  // Set initial interval
+  adjustDataGenerationInterval();
   setInterval(() => {
     const gaugeIds = Object.keys(gaugeConfig);
     const randomGaugeId = gaugeIds[Math.floor(Math.random() * gaugeIds.length)];

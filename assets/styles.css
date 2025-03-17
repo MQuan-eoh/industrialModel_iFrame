@@ -779,9 +779,11 @@ body {
 .symbol-wrapper {
   position: absolute;
   cursor: move;
-  resize: none; /* Tắt chức năng resize mặc định */
+  resize: none;
 }
-
+.symbol-wrapper img {
+  pointer-events: none;
+}
 .resize-handle {
   position: absolute;
   width: 12px;
@@ -1540,22 +1542,63 @@ canvas.health-chart {
   color: #ffffff;
 }
 .go-back-btn {
+  background: #00c6ff;
   position: absolute;
   bottom: 20px;
   left: 20px;
   padding: 8px 15px;
-  background-color: #2a3042;
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  overflow: hidden;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  z-index: 1010;
   transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 1010;
 }
 
 .go-back-btn:hover {
-  background-color: #3a4156;
+  transform: scale(1.05);
+  background: #00b3ff;
+  box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
 }
+
+.go-back-btn:active {
+  transform: scale(0.95);
+}
+
+.go-back-btn i {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.go-back-btn:hover i {
+  transform: translateY(-2px);
+}
+
+.go-back-btn::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transform: rotate(45deg);
+  animation: shine 3s infinite;
+}
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(45deg);
+  }
+}
+

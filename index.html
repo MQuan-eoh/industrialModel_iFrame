@@ -162,33 +162,6 @@
               class="card-header d-flex justify-content-between align-items-center"
             >
               <h2 style="font-size: 1.3rem">Product Group Health Assessment</h2>
-              <div class="dropdown">
-                <button
-                  class="btn btn-sm btn-outline-secondary"
-                  type="button"
-                  id="timeRangeDropdown"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  <i class="fas fa-cog"></i>
-                </button>
-                <div
-                  class="dropdown-menu dropdown-menu-right"
-                  aria-labelledby="timeRangeDropdown"
-                >
-                  <a class="dropdown-item" href="#" data-time="5"
-                    >Last 5 minutes</a
-                  >
-                  <a class="dropdown-item" href="#" data-time="10"
-                    >Last 10 minutes</a
-                  >
-                  <a class="dropdown-item" href="#" data-time="60">Last hour</a>
-                  <a class="dropdown-item" href="#" data-time="1440"
-                    >Last day</a
-                  >
-                </div>
-              </div>
             </div>
             <div class="card-body">
               <div class="row">
@@ -248,6 +221,46 @@
                     </div>
                   </div>
                 </div>
+                <div class="draw-menu">
+                  <button
+                    class="btndropdown-toggle"
+                    type="button"
+                    id="productGroupDropdownToggle"
+                    data-toggle="dropdown"
+                  >
+                    Time Range
+                  </button>
+                  <div class="dropdown-menu" id="productGroupTimeRangeDropdown">
+                    <button
+                      class="dropdown-item"
+                      id="timeRange10Min"
+                      data-minutes="10"
+                    >
+                      10 phút
+                    </button>
+                    <button
+                      class="dropdown-item"
+                      id="timeRange30Min"
+                      data-minutes="30"
+                    >
+                      30 phút
+                    </button>
+                    <button
+                      class="dropdown-item"
+                      id="timeRange1Day"
+                      data-minutes="1440"
+                    >
+                      1 ngày
+                    </button>
+                    <button
+                      class="dropdown-item"
+                      id="timeRangeRealtime"
+                      data-minutes="5"
+                    >
+                      Realtime
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -270,7 +283,7 @@
                 >
                   Drawing Tools
                 </button>
-                <div class="dropdown-menu">
+                <div class="dropdown-menu" id="drawingToolsDropdown">
                   <button class="dropdown-item" id="drawLineBtn">
                     Draw Line
                   </button>
