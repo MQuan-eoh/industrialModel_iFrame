@@ -1301,6 +1301,7 @@ canvas.health-chart {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  display: none;
 }
 
 .section {
@@ -1409,6 +1410,7 @@ canvas.health-chart {
   margin: 0;
   padding: 0; /* Xóa padding để tránh vượt quá viewport */
   font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+  display: none;
 }
 .menu-container {
   position: fixed;
@@ -1441,6 +1443,7 @@ canvas.health-chart {
   padding: 0;
   opacity: 0.8;
   transition: opacity 0.2s ease;
+  z-index: 10000;
 }
 
 .hamburger-menu:hover {
@@ -1520,10 +1523,13 @@ canvas.health-chart {
 }
 [data-line-group] {
   transition: all 0.3s ease;
+  cursor: pointer;
+  pointer-events: visible;
 }
 
 [data-line-group]:hover .main-line {
-  stroke: #00ff00 !important;
+  stroke: #4cc9f0 !important;
+  filter: drop-shadow(0 0 5px rgba(76, 201, 240, 0.5));
 }
 #fullscreen-button {
   position: absolute;
