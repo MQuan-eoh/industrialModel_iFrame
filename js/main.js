@@ -486,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Track Ctrl key press
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Control") {
+    if (e.key === "Control") {e2
       isCtrlPressed = true;
     }
     // Add delete key support
@@ -498,14 +498,18 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("keyup", function (e) {
     if (e.key === "Control") {
       isCtrlPressed = false;
+      if (isSelectMode) {
+        modelContainer.style.cursor = "pointer"; // Reset cursor when Ctrl is released
+      }
     }
   });
 
   // Handle mouse events for drawing
   modelContainer.addEventListener("mousedown", function (e) {
-    // If in selection mode and clicking directly on the container (not on a line)
+    // Only start area selection if Ctrl is pressed and in select mode
     if (
       isSelectMode &&
+      isCtrlPressed &&
       (e.target === modelContainer || e.target === linesContainer)
     ) {
       isAreaSelecting = true;
@@ -516,10 +520,10 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Handle line drawing as usual
+    // Rest of your mousedown handler remains the same
     if (!isDrawing || isSelectMode) return;
 
-    //Save line when drag mouse
+    // Save line when drag mouse
     const rect = modelContainer.getBoundingClientRect();
     startX = e.clientX - rect.left;
     startY = e.clientY - rect.top;
@@ -531,6 +535,7 @@ document.addEventListener("DOMContentLoaded", function () {
     currentLine.style.top = `${startY}px`;
     linesContainer.appendChild(currentLine);
   });
+
   modelContainer.addEventListener("mousemove", function (e) {
     // If dragging the selection box
     if (isAreaSelecting && isSelectMode) {
@@ -1444,23 +1449,19 @@ document.addEventListener("DOMContentLoaded", function () {
     renderAddedSymbols();
   }
   // Add Delete key support
+  // Track Ctrl key press - update this to change cursor
   document.addEventListener("keydown", function (e) {
     if (e.key === "Control") {
       isCtrlPressed = true;
+      if (isSelectMode) {
+        modelContainer.style.cursor = "crosshair"; // Change cursor to indicate selection mode
+      }
     }
     // Add delete key support
-    if (e.key === "Delete") {
-      if (selectedLines.length > 0) {
-        deleteSelected();
-      }
-      removeSelectionBox(); // Remove selection box after deleting lines
-    }
-    // Add Escape key to cancel selection
-    if (e.key === "Escape") {
-      removeSelectionBox();
+    if (e.key === "Delete" && selectedLines.length > 0) {
+      deleteSelected();
     }
   });
-
   // Add CSS for selected symbols
   const styleElement = document.createElement("style");
   styleElement.textContent = `
