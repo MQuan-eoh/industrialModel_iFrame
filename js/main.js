@@ -1500,6 +1500,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Time range in minutes (default: 10 minutes)
   let timeRange = 10;
+  // Function to get color based on value
+  function getStatusColor(value) {
+    if (value >= 0 && value < 45) {
+      return {
+        border: "#28a745", // green
+        background: "rgba(40, 167, 69, 0.1)",
+      };
+    } else if (value >= 45 && value < 90) {
+      return {
+        border: "#ffc107", // yellow/warning
+        background: "rgba(255, 193, 7, 0.1)",
+      };
+    } else if (value >= 90 && value < 135) {
+      return {
+        border: "#fd7e14", // orange/alert
+        background: "rgba(253, 126, 20, 0.1)",
+      };
+    } else {
+      return {
+        border: "#dc3545", // red/critical
+        background: "rgba(220, 53, 69, 0.1)",
+      };
+    }
+  }
 
   // Setup charts
   document.querySelectorAll(".device-health-card").forEach((card) => {
@@ -1513,8 +1537,8 @@ document.addEventListener("DOMContentLoaded", function () {
         datasets: [
           {
             data: [],
-            borderColor: "#007bff",
-            backgroundColor: "rgba(0, 123, 255, 0.1)",
+            borderColor: "#007bff", // Default color, will be updated dynamically
+            backgroundColor: "rgba(0, 123, 255, 0.1)", // Default color, will be updated dynamically
             borderWidth: 2,
             pointRadius: 0,
             tension: 0.4,
@@ -1569,7 +1593,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // =====Function to update chart data========
+  // Updated function to update chart data with dynamic colors
   function updateChartData(sourceId, value) {
     const now = new Date();
 
@@ -1588,12 +1612,17 @@ document.addEventListener("DOMContentLoaded", function () {
       healthData[sourceId].timestamps.shift();
     }
 
-    // Update chart
+    // Get color based on current value
+    const colors = getStatusColor(value);
+
+    // Update chart with new colors
     const chart = charts[sourceId];
     chart.data.labels = healthData[sourceId].timestamps.map((t) =>
       t.toLocaleTimeString()
     );
     chart.data.datasets[0].data = healthData[sourceId].values;
+    chart.data.datasets[0].borderColor = colors.border;
+    chart.data.datasets[0].backgroundColor = colors.background;
     chart.update();
   }
 

@@ -138,6 +138,46 @@ ERA_DISCONNECTED() {
 /* This function print uptime every second */
 void timerEvent() {
   ERA_LOG(ERA_PSTR("Timer"), ERA_PSTR("Uptime: %d"), ERaMillis() / 1000L);
+
+  
+    // Clo của hồ (ppm)
+  float chlorine = random(5, 50) / 10.0; // 0.5 đến 5.0 ppm
+  ERa.virtualWrite(V4, chlorine);
+
+  // Độ pH của nước
+  float pH = random(65, 85) / 10.0; // 6.5 đến 8.5
+  ERa.virtualWrite(V5, pH);
+
+  // Độ đục của hồ (NTU)
+  float turbidity = random(1, 50) / 10.0; // 0.1 đến 5.0 NTU
+  ERa.virtualWrite(V6, turbidity);
+
+  // Độ clo dư của hồ (ppm)
+  float residualChlorine = random(5, 50) / 10.0; // 0.5 đến 5.0 ppm
+  ERa.virtualWrite(V7, residualChlorine);
+
+  // Năng lượng tiêu thụ của office (kWh)
+  float energyConsumption = random(50, 1500) / 10.0; // 5.0 đến 150.0 kWh
+  ERa.virtualWrite(V8, energyConsumption);
+
+  // Nhiệt độ (°C)
+  float temperature = random(150, 350) / 10.0; // 15.0 đến 35.0 °C
+  ERa.virtualWrite(V9, temperature);
+
+  // Độ ẩm (%)
+  int humidity = random(20, 80); // 20% đến 80%
+  ERa.virtualWrite(V10, humidity);
+
+  // In ra các giá trị
+  Serial.println("=== Thông số mới ===");
+  Serial.println("Clo của hồ: " + String(chlorine) + " ppm");
+  Serial.println("Độ pH của nước: " + String(pH));
+  Serial.println("Độ đục của hồ: " + String(turbidity) + " NTU");
+  Serial.println("Độ clo dư của hồ: " + String(residualChlorine) + " ppm");
+  Serial.println("Năng lượng tiêu thụ: " + String(energyConsumption) + " kWh");
+  Serial.println("Nhiệt độ: " + String(temperature) + " °C");
+  Serial.println("Độ ẩm: " + String(humidity) + " %");
+
 }
 
 ERA_WRITE(V3) {

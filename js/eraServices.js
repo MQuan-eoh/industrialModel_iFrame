@@ -2,7 +2,7 @@
 const eraWidget = new EraWidget();
 const lake = document.querySelector(".lakeClo-value");
 const waterFilterPH = document.querySelector(".waterFilter-pH");
-const waterFilterDoDuc = document.querySelector(".waterFilter-doDuc");
+const waterFilterDoDuc = document.querySelectorAll(".waterFilter-doDuc");
 const waterFilterCloDu = document.querySelector(".waterFilter-cloDu");
 const officePower = document.querySelector(".office-powerConsump");
 const factoryTemp = document.querySelector(".factory-temperature");
@@ -21,7 +21,6 @@ let configTank1 = null,
   configofficePower = null,
   configfactoryTemp = null,
   configfactoryHumid = null;
-
 eraWidget.init({
   onConfiguration: (configuration) => {
     configTank1 = configuration.realtime_configs[0];

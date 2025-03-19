@@ -17,6 +17,12 @@ document.addEventListener("DOMContentLoaded", function () {
   let linesFactory = [];
   let isCapsLockOn = false;
   let currentMiddlePath;
+  let isSelectModeFactory = false;
+  let selectedLineFactory = null;
+  let isAreaSelecting = false;
+  let selectionBox = null;
+  let selectedLinesFactory = [];
+
   window.addEventListener("load", () => {
     drawInstance = SVG("#drawing-area").size("100%", "100%");
     const savedLinesFactory =
@@ -300,9 +306,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  let isSelectModeFactory = false;
-  let selectedLineFactory = null;
-
   // const hamburgerMenu = document.getElementById("hamburger-menu");
   const dropdownMenuFactory = document.getElementById("dropdown_FactoryModel");
   // const selectLineButton = document.getElementById("select-line-button");
@@ -327,29 +330,34 @@ document.addEventListener("DOMContentLoaded", function () {
     const lineElement = e.currentTarget;
     const lineGroup = SVG.adopt(lineElement);
 
-    if (selectedLineFactory) {
-      const prevMain = selectedLineFactory.findOne(".main-line");
-      prevMain.attr({
-        stroke: "#FFFFFF",
-        "stroke-width": prevMain.attr("data-original-width"),
+    // If shift key is pressed, add to selection
+    if (e.shiftKey) {
+      if (!selectedLinesFactory.includes(lineGroup)) {
+        selectedLinesFactory.push(lineGroup);
+        const mainPath = lineGroup.findOne(".main-line");
+        mainPath.attr({
+          stroke: "#4cc9f0",
+          "stroke-width": 4,
+        });
+      }
+    } else {
+      // Clear previous selection
+      selectedLinesFactory.forEach((group) => {
+        const main = group.findOne(".main-line");
+        main.attr({
+          stroke: "#FFFFFF",
+          "stroke-width": main.attr("data-original-width"),
+        });
+      });
+      selectedLinesFactory = [lineGroup];
+
+      const mainPath = lineGroup.findOne(".main-line");
+      mainPath.attr({
+        stroke: "#4cc9f0",
+        "stroke-width": 4,
       });
     }
-
-    selectedLineFactory = lineGroup;
-    const mainPath = selectedLineFactory.findOne(".main-line");
-    mainPath.attr({
-      stroke: "#4cc9f0",
-      "stroke-width": 4,
-    });
   }
-
-  document.getElementById("clearAllFactory").addEventListener("click", () => {
-    linesFactory.forEach((lineFactory) => lineFactory.remove());
-    linesFactory = [];
-    selectedLineFactory = null;
-    clearAllLinesFromStorage();
-  });
-
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && currentMainPath) {
       if (lineGroup) {
@@ -365,9 +373,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (e.key === "Delete" && selectedLineFactory) {
+      // Lấy dữ liệu path chính xác
       const mainPath = selectedLineFactory.findOne(".main-line");
       const pathData = mainPath.array();
 
+      // Sửa cách trích xuất tọa độ
       const start = pathData[0];
       const end = pathData[1];
       const lineData = {
@@ -379,7 +389,7 @@ document.addEventListener("DOMContentLoaded", function () {
       removeLineFromStorage(lineData);
       selectedLineFactory.remove();
 
-      //Update linesFactory array
+      // Cập nhật mảng linesFactory
       const index = linesFactory.indexOf(selectedLineFactory);
       if (index > -1) linesFactory.splice(index, 1);
 
