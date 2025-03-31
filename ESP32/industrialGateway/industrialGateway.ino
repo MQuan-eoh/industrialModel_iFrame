@@ -17,8 +17,8 @@
 /* Define MQTT host */
 #define DEFAULT_MQTT_HOST "mqtt1.eoh.io"
 
-// You should get Auth Token in the ERa App or ERa Dashboard
-#define ERA_AUTH_TOKEN "71f399f7-d4e2-4e14-b0bf-28729dbf53cd"
+// You should get Auth Token in the ERa App or ERa Dash board
+#define ERA_AUTH_TOKEN "5ea18106-e42b-4e03-91ab-2dd771ba1386"
 
 /* Define setting button */
 // #define BUTTON_PIN              0
@@ -38,7 +38,8 @@
 
 const char ssid[] = "eoh.io";
 const char pass[] = "Eoh@2020";
-
+#define RELAY_PIN 13
+#define LED_PIN 12
 WiFiClient mbTcpClient;
 
 #if defined(BUTTON_PIN)
@@ -188,6 +189,7 @@ ERA_WRITE(V3) {
   } else {
     isWaterTank2 = false;
   }
+    digitalWrite(LED_PIN, value ? HIGH : LOW);
 }
 
 ERA_WRITE(V2) {
@@ -198,6 +200,8 @@ ERA_WRITE(V2) {
   } else {
     startAccumulation = false;
   }
+  uint8_t valueRelay = !value;
+  digitalWrite(RELAY_PIN, valueRelay ? HIGH : LOW);
 }
 
 // Hàm cập nhật waterTank1 theo chu kỳ
@@ -261,6 +265,8 @@ void setup() {
 
   /* Setup timer called function every second */
   ERa.addInterval(1000L, timerEvent);
+  pinMode(LED_PIN,OUTPUT);
+  pinMode(RELAY_PIN,OUTPUT);
 }
 
 void loop() {
