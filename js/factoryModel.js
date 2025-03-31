@@ -1,37 +1,39 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Menu and menu item
-  const drawButton = document.getElementById("draw-button");
-  const selectLineButton = document.getElementById("select-line-button");
+  const drawButtonFactory = document.getElementById("draw-button");
+  const selectLineButtonFactory = document.getElementById("select-line-button");
   const clearAllButtonFactory = document.getElementById("clearAllFactory");
-  const hamburgerMenu = document.getElementById("hamburger-menu");
+  const hamburgerMenuFactory = document.getElementById("hamburger-menu");
   const dropdown_FactoryModel = document.getElementById(
     "dropdown_FactoryModel"
   );
 
   let drawingFactory = false;
-  let drawInstance;
-  let currentGlowPath;
-  let currentMainPath;
-  let startPoint;
-  let endCircle = null;
-  let linesFactory = [];
-  let isCapsLockOn = false;
-  let currentMiddlePath;
+  let drawInstanceFactory;
+  let currentGlowPathFactory;
+  let currentMainPathFactory;
+  let startPointFactory;
+  let endCircleFactory = null;
+  let linesFactoryArray = [];
+  let isCapsLockOnFactory = false;
+  let currentMiddlePathFactory;
   let isSelectModeFactory = false;
   let selectedLineFactory = null;
-  let isAreaSelecting = false;
-  let selectionBox = null;
-  let selectedLinesFactory = [];
+  let isAreaSelectingFactory = false;
+  let selectionBoxFactory = null;
+  let selectedLinesFactoryArray = [];
   // Add missing isCtrlPressed variable declaration
-  let isCtrlPressed = false;
-  let lineGroup;
+  let isCtrlPressedFactory = false;
+  let lineGroupFactory;
 
   window.addEventListener("load", () => {
-    drawInstance = SVG("#drawing-area").size("100%", "100%");
+    drawInstanceFactory = SVG("#drawing-area").size("100%", "100%");
     const savedLinesFactory =
       JSON.parse(localStorage.getItem("linesFactory")) || [];
     savedLinesFactory.forEach((lineData) => {
-      const lineGroup = drawInstance.group().attr({ "data-line-group": true });
+      const lineGroup = drawInstanceFactory
+        .group()
+        .attr({ "data-line-group-factory": true });
       const pathString = `M${lineData.start.x},${lineData.start.y} L${lineData.end.x},${lineData.end.y}`;
 
       lineGroup.path(pathString).attr({
@@ -50,13 +52,16 @@ document.addEventListener("DOMContentLoaded", function () {
         filter: "url(#glow)",
       });
 
-      const mainPath = lineGroup.path(pathString).addClass("main-line").attr({
-        fill: "none",
-        stroke: "#FFFFFF",
-        "stroke-width": 2,
-        "stroke-linecap": "round",
-        "data-original-width": 2,
-      });
+      const mainPath = lineGroup
+        .path(pathString)
+        .addClass("main-line-factory")
+        .attr({
+          fill: "none",
+          stroke: "#FFFFFF",
+          "stroke-width": 2,
+          "stroke-linecap": "round",
+          "data-original-width-factory": 2,
+        });
 
       if (lineData.hasStartCircle) {
         const startCircle = lineGroup.group();
@@ -79,70 +84,74 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      linesFactory.push(lineGroup);
-      lineGroup.node.addEventListener("click", handleLineClick);
+      linesFactoryArray.push(lineGroup);
+      lineGroup.node.addEventListener("click", handleLineClickFactory);
     });
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.ctrlKey) isCtrlPressed = true;
+    if (e.ctrlKey) isCtrlPressedFactory = true;
     if (e.getModifierState("CapsLock")) {
-      isCapsLockOn = true;
+      isCapsLockOnFactory = true;
     }
   });
 
   document.addEventListener("keyup", (e) => {
-    if (!e.ctrlKey) isCtrlPressed = false;
+    if (!e.ctrlKey) isCtrlPressedFactory = false;
     if (e.key === "CapsLock") {
-      isCapsLockOn = e.getModifierState("CapsLock");
+      isCapsLockOnFactory = e.getModifierState("CapsLock");
     }
   });
 
-  document.getElementById("draw-button").addEventListener("click", () => {
-    drawingFactory = !drawingFactory;
-    if (drawingFactory) {
-      document.getElementById("draw-button").textContent = "Dừng vẽ";
-      startDrawing();
-    } else {
-      document.getElementById("draw-button").textContent = "Bắt đầu vẽ";
-      stopDrawing();
-    }
-  });
+  if (drawButtonFactory) {
+    drawButtonFactory.addEventListener("click", () => {
+      drawingFactory = !drawingFactory;
+      if (drawingFactory) {
+        drawButtonFactory.textContent = "Dừng vẽ";
+        startDrawingFactory();
+      } else {
+        drawButtonFactory.textContent = "Bắt đầu vẽ";
+        stopDrawingFactory();
+      }
+    });
+  }
 
-  function startDrawing() {
-    if (!drawInstance) {
-      drawInstance = SVG("#drawing-area").size("100%", "100%");
+  function startDrawingFactory() {
+    if (!drawInstanceFactory) {
+      drawInstanceFactory = SVG("#drawing-area").size("100%", "100%");
     }
 
-    drawInstance.on("mousedown", (e) => {
+    drawInstanceFactory.on("mousedown", (e) => {
       if (!drawingFactory) return;
-      startPoint = { x: e.offsetX, y: e.offsetY };
+      startPointFactory = { x: e.offsetX, y: e.offsetY };
 
-      lineGroup = drawInstance.group().attr({ "data-line-group": true });
+      lineGroupFactory = drawInstanceFactory
+        .group()
+        .attr({ "data-line-group-factory": true });
 
-      if (isCapsLockOn) {
-        const startCircle = lineGroup.group();
+      if (isCapsLockOnFactory) {
+        const startCircle = lineGroupFactory.group();
         startCircle.circle(16).attr({
-          cx: startPoint.x,
-          cy: startPoint.y,
+          cx: startPointFactory.x,
+          cy: startPointFactory.y,
           fill: "rgba(255, 255, 255, 0.2)",
           filter: "url(#glow)",
         });
         startCircle.circle(10).attr({
-          cx: startPoint.x,
-          cy: startPoint.y,
+          cx: startPointFactory.x,
+          cy: startPointFactory.y,
           fill: "rgba(255, 255, 255, 0.4)",
           filter: "url(#glow)",
         });
         startCircle.circle(6).attr({
-          cx: startPoint.x,
-          cy: startPoint.y,
+          cx: startPointFactory.x,
+          cy: startPointFactory.y,
           fill: "#FFFFFF",
         });
       }
 
-      currentGlowPath = lineGroup
-        .path(`M${startPoint.x},${startPoint.y}`)
+      currentGlowPathFactory = lineGroupFactory
+        .path(`M${startPointFactory.x},${startPointFactory.y}`)
         .attr({
           fill: "none",
           stroke: "rgba(255, 255, 255, 0.4)",
@@ -151,8 +160,8 @@ document.addEventListener("DOMContentLoaded", function () {
           filter: "url(#glow)",
         });
 
-      currentMiddlePath = lineGroup
-        .path(`M${startPoint.x},${startPoint.y}`)
+      currentMiddlePathFactory = lineGroupFactory
+        .path(`M${startPointFactory.x},${startPointFactory.y}`)
         .attr({
           fill: "none",
           stroke: "rgba(255, 255, 255, 0.6)",
@@ -161,77 +170,77 @@ document.addEventListener("DOMContentLoaded", function () {
           filter: "url(#glow)",
         });
 
-      currentMainPath = lineGroup
-        .path(`M${startPoint.x},${startPoint.y}`)
-        .addClass("main-line")
+      currentMainPathFactory = lineGroupFactory
+        .path(`M${startPointFactory.x},${startPointFactory.y}`)
+        .addClass("main-line-factory")
         .attr({
           fill: "none",
           stroke: "#FFFFFF",
           "stroke-width": 2,
           "stroke-linecap": "round",
-          "data-original-width": 2,
+          "data-original-width-factory": 2,
         });
     });
 
-    drawInstance.on("mousemove", (e) => {
-      if (!drawingFactory || !currentMainPath) return;
+    drawInstanceFactory.on("mousemove", (e) => {
+      if (!drawingFactory || !currentMainPathFactory) return;
       let endPoint = { x: e.offsetX, y: e.offsetY };
 
-      if (isCtrlPressed) {
-        const dx = endPoint.x - startPoint.x;
-        const dy = endPoint.y - startPoint.y;
+      if (isCtrlPressedFactory) {
+        const dx = endPoint.x - startPointFactory.x;
+        const dy = endPoint.y - startPointFactory.y;
         const angle = Math.atan2(dy, dx) * (180 / Math.PI);
         const length = Math.sqrt(dx * dx + dy * dy);
-        endPoint = snapToAngle(startPoint, angle, length);
+        endPoint = snapToAngleFactory(startPointFactory, angle, length);
       }
 
-      const pathString = `M${startPoint.x},${startPoint.y} L${endPoint.x},${endPoint.y}`;
-      currentGlowPath.plot(pathString);
-      currentMiddlePath.plot(pathString);
-      currentMainPath.plot(pathString);
+      const pathString = `M${startPointFactory.x},${startPointFactory.y} L${endPoint.x},${endPoint.y}`;
+      currentGlowPathFactory.plot(pathString);
+      currentMiddlePathFactory.plot(pathString);
+      currentMainPathFactory.plot(pathString);
 
-      if (endCircle) endCircle.remove();
+      if (endCircleFactory) endCircleFactory.remove();
 
-      endCircle = drawInstance.group();
-      endCircle.circle(16).attr({
+      endCircleFactory = drawInstanceFactory.group();
+      endCircleFactory.circle(16).attr({
         cx: endPoint.x,
         cy: endPoint.y,
         fill: "rgba(255, 255, 255, 0.2)",
         filter: "url(#glow)",
       });
-      endCircle.circle(10).attr({
+      endCircleFactory.circle(10).attr({
         cx: endPoint.x,
         cy: endPoint.y,
         fill: "rgba(255, 255, 255, 0.4)",
         filter: "url(#glow)",
       });
-      endCircle.circle(6).attr({
+      endCircleFactory.circle(6).attr({
         cx: endPoint.x,
         cy: endPoint.y,
         fill: "#FFFFFF",
       });
     });
 
-    drawInstance.on("mouseup", () => {
+    drawInstanceFactory.on("mouseup", (e) => {
       if (!drawingFactory) return;
 
-      if (lineGroup) {
-        linesFactory.push(lineGroup);
-        lineGroup.node.addEventListener("click", handleLineClick);
+      if (lineGroupFactory) {
+        linesFactoryArray.push(lineGroupFactory);
+        lineGroupFactory.node.addEventListener("click", handleLineClickFactory);
 
         // Fix path data extraction
-        const mainPath = lineGroup.findOne(".main-line");
+        const mainPath = lineGroupFactory.findOne(".main-line-factory");
 
         try {
           // Access the path data directly instead of using array() method
           const pathElement = mainPath.node;
-          const startX = startPoint.x;
-          const startY = startPoint.y;
+          const startX = startPointFactory.x;
+          const startY = startPointFactory.y;
 
           // Get end point coordinates from the last circle
           let endX, endY;
-          if (endCircle) {
-            const lastCircle = endCircle.first();
+          if (endCircleFactory) {
+            const lastCircle = endCircleFactory.first();
             endX = lastCircle.attr("cx");
             endY = lastCircle.attr("cy");
           } else {
@@ -243,42 +252,42 @@ document.addEventListener("DOMContentLoaded", function () {
               endY = parseFloat(match[2]);
             } else {
               // If we can't extract L coordinates, use startPoint as fallback
-              endX = startPoint.x;
-              endY = startPoint.y;
+              endX = startPointFactory.x;
+              endY = startPointFactory.y;
             }
           }
 
           const lineData = {
             start: { x: startX, y: startY },
             end: { x: endX, y: endY },
-            hasStartCircle: isCapsLockOn,
+            hasStartCircle: isCapsLockOnFactory,
           };
 
-          saveLineToStorage(lineData);
+          saveLineToStorageFactory(lineData);
         } catch (err) {
           console.error("Error saving line data:", err);
         }
       }
 
-      if (endCircle) {
-        endCircle.remove();
-        endCircle = null;
+      if (endCircleFactory) {
+        endCircleFactory.remove();
+        endCircleFactory = null;
       }
-      currentGlowPath = null;
-      currentMiddlePath = null;
-      currentMainPath = null;
-      lineGroup = null;
+      currentGlowPathFactory = null;
+      currentMiddlePathFactory = null;
+      currentMainPathFactory = null;
+      lineGroupFactory = null;
     });
   }
 
-  function saveLineToStorage(lineData) {
+  function saveLineToStorageFactory(lineData) {
     const savedLinesFactory =
       JSON.parse(localStorage.getItem("linesFactory")) || [];
     savedLinesFactory.push(lineData);
     localStorage.setItem("linesFactory", JSON.stringify(savedLinesFactory));
   }
 
-  function removeLineFromStorage(lineData) {
+  function removeLineFromStorageFactory(lineData) {
     let savedLinesFactory =
       JSON.parse(localStorage.getItem("linesFactory")) || [];
     // Thêm tolerance cho số thực
@@ -294,11 +303,11 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("linesFactory", JSON.stringify(savedLinesFactory));
   }
 
-  function clearAllLinesFromStorage() {
+  function clearAllLinesFromStorageFactory() {
     localStorage.removeItem("linesFactory");
   }
 
-  function snapToAngle(start, angle, length) {
+  function snapToAngleFactory(start, angle, length) {
     const snapAngles = [0, 45, 90, 135, 180, 225, 270, 315];
     let closestAngle = snapAngles[0];
     let minDiff = Math.abs(angle - snapAngles[0]);
@@ -317,136 +326,193 @@ document.addEventListener("DOMContentLoaded", function () {
     return { x: adjustedX, y: adjustedY };
   }
 
-  function stopDrawing() {
-    drawInstance.off("mousedown");
-    drawInstance.off("mousemove");
-    drawInstance.off("mouseup");
+  function stopDrawingFactory() {
+    drawInstanceFactory.off("mousedown");
+    drawInstanceFactory.off("mousemove");
+    drawInstanceFactory.off("mouseup");
 
-    if (endCircle) {
-      endCircle.remove();
-      endCircle = null;
+    if (endCircleFactory) {
+      endCircleFactory.remove();
+      endCircleFactory = null;
     }
   }
 
-  // const hamburgerMenu = document.getElementById("hamburger-menu");
+  // Dropdown menu handling
   const dropdownMenuFactory = document.getElementById("dropdown_FactoryModel");
-  // const selectLineButton = document.getElementById("select-line-button");
 
-  hamburgerMenu.addEventListener("click", () => {
-    dropdownMenuFactory.classList.toggle("active");
-    console.log("Press Hambuger Menu");
-  });
+  if (hamburgerMenuFactory) {
+    hamburgerMenuFactory.addEventListener("click", () => {
+      dropdownMenuFactory.classList.toggle("active");
+      console.log("Press Hambuger Menu");
+    });
+  }
 
   document.addEventListener("click", (e) => {
     if (
-      !hamburgerMenu.contains(e.target) &&
+      dropdownMenuFactory &&
+      hamburgerMenuFactory &&
+      !hamburgerMenuFactory.contains(e.target) &&
       !dropdownMenuFactory.contains(e.target)
     ) {
       dropdownMenuFactory.classList.remove("active");
     }
   });
 
-  function handleLineClick(e) {
+  // Chức năng chọn line để xóa đã được sửa đổi
+  function handleLineClickFactory(e) {
     if (!isSelectModeFactory) return;
+    e.stopPropagation(); // Ngăn chặn sự kiện lan truyền
 
     const lineElement = e.currentTarget;
     const lineGroup = SVG.adopt(lineElement);
 
+    console.log("Line clicked in factory model:", lineGroup);
+
     // If shift key is pressed, add to selection
     if (e.shiftKey) {
-      if (!selectedLinesFactory.includes(lineGroup)) {
-        selectedLinesFactory.push(lineGroup);
-        const mainPath = lineGroup.findOne(".main-line");
+      if (
+        !selectedLinesFactoryArray.some((item) => item.node === lineGroup.node)
+      ) {
+        selectedLinesFactoryArray.push(lineGroup);
+        const mainPath = lineGroup.findOne(".main-line-factory");
+        if (mainPath) {
+          mainPath.attr({
+            stroke: "#4cc9f0",
+            "stroke-width": 4,
+          });
+        }
+      }
+    } else {
+      // Clear previous selection
+      selectedLinesFactoryArray.forEach((group) => {
+        const main = group.findOne(".main-line-factory");
+        if (main) {
+          main.attr({
+            stroke: "#FFFFFF",
+            "stroke-width": main.attr("data-original-width-factory") || 2,
+          });
+        }
+      });
+
+      selectedLinesFactoryArray = [];
+      selectedLineFactory = lineGroup; // Set the current selected line
+      selectedLinesFactoryArray.push(lineGroup);
+
+      const mainPath = lineGroup.findOne(".main-line-factory");
+      if (mainPath) {
         mainPath.attr({
           stroke: "#4cc9f0",
           "stroke-width": 4,
         });
       }
-    } else {
-      // Clear previous selection
-      selectedLinesFactory.forEach((group) => {
-        const main = group.findOne(".main-line");
-        main.attr({
-          stroke: "#FFFFFF",
-          "stroke-width": main.attr("data-original-width"),
-        });
-      });
-      selectedLinesFactory = [lineGroup];
-
-      const mainPath = lineGroup.findOne(".main-line");
-      mainPath.attr({
-        stroke: "#4cc9f0",
-        "stroke-width": 4,
-      });
     }
   }
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && currentMainPath) {
-      if (lineGroup) {
-        lineGroup.remove();
-        lineGroup = null;
+    if (e.key === "Escape" && currentMainPathFactory) {
+      if (lineGroupFactory) {
+        lineGroupFactory.remove();
+        lineGroupFactory = null;
       }
-      currentGlowPath = null;
-      currentMainPath = null;
-      if (endCircle) {
-        endCircle.remove();
-        endCircle = null;
+      currentGlowPathFactory = null;
+      currentMainPathFactory = null;
+      if (endCircleFactory) {
+        endCircleFactory.remove();
+        endCircleFactory = null;
       }
     }
 
-    if (e.key === "Delete" && selectedLineFactory) {
-      try {
-        // Fix path data extraction for Delete operation
-        const mainPath = selectedLineFactory.findOne(".main-line");
-        const pathElement = mainPath.node;
-        const d = pathElement.getAttribute("d");
+    // Xử lý xóa line đã chọn khi nhấn Delete
+    if (
+      e.key === "Delete" &&
+      (selectedLineFactory || selectedLinesFactoryArray.length > 0)
+    ) {
+      // Nếu có các line đã chọn, xóa tất cả chúng
+      if (selectedLinesFactoryArray.length > 0) {
+        selectedLinesFactoryArray.forEach((lineToDelete) => {
+          try {
+            // Fix path data extraction for Delete operation
+            const mainPath = lineToDelete.findOne(".main-line-factory");
+            if (mainPath && mainPath.node) {
+              const pathElement = mainPath.node;
+              const d = pathElement.getAttribute("d");
 
-        // Parse the d attribute to extract start and end coordinates
-        const mMatch = d.match(/M\s*([0-9.-]+)\s*,?\s*([0-9.-]+)/);
-        const lMatch = d.match(/L\s*([0-9.-]+)\s*,?\s*([0-9.-]+)/);
+              // Parse the d attribute to extract start and end coordinates
+              const mMatch = d.match(/M\s*([0-9.-]+)\s*,?\s*([0-9.-]+)/);
+              const lMatch = d.match(/L\s*([0-9.-]+)\s*,?\s*([0-9.-]+)/);
 
-        if (mMatch && lMatch) {
-          const lineData = {
-            start: { x: parseFloat(mMatch[1]), y: parseFloat(mMatch[2]) },
-            end: { x: parseFloat(lMatch[1]), y: parseFloat(lMatch[2]) },
-            hasStartCircle: selectedLineFactory.findOne("circle") !== null,
-          };
+              if (mMatch && lMatch) {
+                const lineData = {
+                  start: { x: parseFloat(mMatch[1]), y: parseFloat(mMatch[2]) },
+                  end: { x: parseFloat(lMatch[1]), y: parseFloat(lMatch[2]) },
+                  hasStartCircle: lineToDelete.findOne("circle") !== null,
+                };
 
-          removeLineFromStorage(lineData);
-          selectedLineFactory.remove();
+                removeLineFromStorageFactory(lineData);
 
-          // Cập nhật mảng linesFactory
-          const index = linesFactory.indexOf(selectedLineFactory);
-          if (index > -1) linesFactory.splice(index, 1);
+                // Xóa line từ DOM
+                lineToDelete.remove();
 
-          selectedLineFactory = null;
+                // Cập nhật mảng linesFactoryArray
+                const index = linesFactoryArray.indexOf(lineToDelete);
+                if (index > -1) linesFactoryArray.splice(index, 1);
+              }
+            }
+          } catch (err) {
+            console.error("Error deleting line:", err);
+          }
+        });
+
+        // Reset selections
+        selectedLinesFactoryArray = [];
+        selectedLineFactory = null;
+      }
+    }
+  });
+
+  if (selectLineButtonFactory) {
+    selectLineButtonFactory.addEventListener("click", () => {
+      isSelectModeFactory = !isSelectModeFactory;
+      selectLineButtonFactory.classList.toggle("active");
+      selectLineButtonFactory.textContent = isSelectModeFactory
+        ? "Đang chọn line"
+        : "Chọn line để xóa";
+
+      // Thay đổi con trỏ cho tất cả các line
+      const cursorStyle = isSelectModeFactory ? "pointer" : "default";
+      linesFactoryArray.forEach((lineFactory) => {
+        if (lineFactory && lineFactory.node) {
+          lineFactory.node.style.cursor = cursorStyle;
         }
-      } catch (err) {
-        console.error("Error deleting line:", err);
+      });
+
+      // Reset selection khi tắt chế độ chọn
+      if (!isSelectModeFactory) {
+        selectedLinesFactoryArray.forEach((group) => {
+          if (group) {
+            const main = group.findOne(".main-line-factory");
+            if (main) {
+              main.attr({
+                stroke: "#FFFFFF",
+                "stroke-width": main.attr("data-original-width-factory") || 2,
+              });
+            }
+          }
+        });
+        selectedLinesFactoryArray = [];
+        selectedLineFactory = null;
       }
-    }
-  });
-
-  selectLineButton.addEventListener("click", () => {
-    isSelectModeFactory = !isSelectModeFactory;
-    selectLineButton.classList.toggle("active");
-    selectLineButton.textContent = isSelectModeFactory
-      ? "Đang chọn line"
-      : "Chọn line để xóa";
-
-    const cursorStyle = isSelectModeFactory ? "pointer" : "default";
-    linesFactory.forEach(
-      (lineFactory) => (lineFactory.node.style.cursor = cursorStyle)
-    );
-  });
+    });
+  }
 
   // Add clear all functionality
   if (clearAllButtonFactory) {
     clearAllButtonFactory.addEventListener("click", () => {
-      linesFactory.forEach((line) => line.remove());
-      linesFactory = [];
-      clearAllLinesFromStorage();
+      linesFactoryArray.forEach((line) => {
+        if (line && line.remove) line.remove();
+      });
+      linesFactoryArray = [];
+      clearAllLinesFromStorageFactory();
     });
   }
 });
@@ -461,6 +527,8 @@ const gaugeConfig = {
 
 function initializeGauge(gaugeId) {
   const gauge = document.getElementById(gaugeId);
+  if (!gauge) return null;
+
   const ticks = gauge.querySelector(".ticks");
   const labels = gauge.querySelector(".labels");
   const needle = gauge.querySelector(".needle");
