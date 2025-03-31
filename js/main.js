@@ -486,7 +486,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Track Ctrl key press
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Control") {e2
+    if (e.key === "Control") {
+      e2;
       isCtrlPressed = true;
     }
     // Add delete key support
