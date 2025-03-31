@@ -349,98 +349,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function saveLines() {
     localStorage.setItem("dashboardLines", JSON.stringify(lines));
   }
-  // Add a variable to track selection box dragging state
-  let isAreaSelecting = false;
-  let selectionBox = null;
-  let selectionStartX, selectionStartY;
-  // Add a function to create a selection box
-  function createSelectionBox(x, y) {
-    selectionBox = document.createElement("div");
-    selectionBox.className = "selection-box";
-    selectionBox.style.position = "absolute";
-    selectionBox.style.border = "1px dashed #007bff";
-    selectionBox.style.backgroundColor = "rgba(0, 123, 255, 0.1)";
-    selectionBox.style.pointerEvents = "none";
-    selectionBox.style.left = `${x}px`;
-    selectionBox.style.top = `${y}px`;
-    selectionBox.style.width = "0";
-    selectionBox.style.height = "0";
-    linesContainer.appendChild(selectionBox);
-  }
 
-  // Add a function to update the selection box size
-  function updateSelectionBox(currentX, currentY) {
-    if (!selectionBox) return;
-
-    const width = Math.abs(currentX - selectionStartX);
-    const height = Math.abs(currentY - selectionStartY);
-
-    selectionBox.style.left = `${Math.min(selectionStartX, currentX)}px`;
-    selectionBox.style.top = `${Math.min(selectionStartY, currentY)}px`;
-    selectionBox.style.width = `${width}px`;
-    selectionBox.style.height = `${height}px`;
-  }
-
-  // Add a function to check if a line is inside the selection box
-  function isLineInSelectionBox(line, boxLeft, boxTop, boxWidth, boxHeight) {
-    // Calculate the line's points
-    const lineStartX = line.startX;
-    const lineStartY = line.startY;
-    const lineEndX = line.endX;
-    const lineEndY = line.endY;
-
-    // Calculate the selection box boundaries
-    const boxRight = boxLeft + boxWidth;
-    const boxBottom = boxTop + boxHeight;
-
-    // Check if at least one endpoint of the line is inside the selection box
-    const isStartInBox =
-      lineStartX >= boxLeft &&
-      lineStartX <= boxRight &&
-      lineStartY >= boxTop &&
-      lineStartY <= boxBottom;
-
-    const isEndInBox =
-      lineEndX >= boxLeft &&
-      lineEndX <= boxRight &&
-      lineEndY >= boxTop &&
-      lineEndY <= boxBottom;
-
-    // Or check if the line intersects the selection box (more complex, can be added later)
-
-    return isStartInBox || isEndInBox;
-  }
-
-  // Add a function to select lines within the selection box
-  function selectLinesInBox() {
-    if (!selectionBox) return;
-
-    const boxLeft = parseFloat(selectionBox.style.left);
-    const boxTop = parseFloat(selectionBox.style.top);
-    const boxWidth = parseFloat(selectionBox.style.width);
-    const boxHeight = parseFloat(selectionBox.style.height);
-
-    // Select lines within the selection box
-    lines.forEach((line, index) => {
-      if (isLineInSelectionBox(line, boxLeft, boxTop, boxWidth, boxHeight)) {
-        if (!selectedLines.includes(index)) {
-          selectedLines.push(index);
-        }
-      }
-    });
-
-    // Update the display of selected lines
-    renderLines();
-  }
-
-  // Remove the selection box
-  function removeSelectionBox() {
-    if (selectionBox && selectionBox.parentNode) {
-      selectionBox.parentNode.removeChild(selectionBox);
-      selectionBox = null;
-    }
-    isAreaSelecting = false;
-  }
   // Delete selected lines
   function deleteSelected() {
     if (selectedLines.length === 0) {
@@ -487,7 +396,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Track Ctrl key press
   document.addEventListener("keydown", function (e) {
     if (e.key === "Control") {
-      e2;
       isCtrlPressed = true;
     }
     // Add delete key support
@@ -499,32 +407,13 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("keyup", function (e) {
     if (e.key === "Control") {
       isCtrlPressed = false;
-      if (isSelectMode) {
-        modelContainer.style.cursor = "pointer"; // Reset cursor when Ctrl is released
-      }
     }
   });
 
   // Handle mouse events for drawing
   modelContainer.addEventListener("mousedown", function (e) {
-    // Only start area selection if Ctrl is pressed and in select mode
-    if (
-      isSelectMode &&
-      isCtrlPressed &&
-      (e.target === modelContainer || e.target === linesContainer)
-    ) {
-      isAreaSelecting = true;
-      const rect = modelContainer.getBoundingClientRect();
-      selectionStartX = e.clientX - rect.left;
-      selectionStartY = e.clientY - rect.top;
-      createSelectionBox(selectionStartX, selectionStartY);
-      return;
-    }
-
-    // Rest of your mousedown handler remains the same
     if (!isDrawing || isSelectMode) return;
 
-    // Save line when drag mouse
     const rect = modelContainer.getBoundingClientRect();
     startX = e.clientX - rect.left;
     startY = e.clientY - rect.top;
@@ -538,16 +427,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   modelContainer.addEventListener("mousemove", function (e) {
-    // If dragging the selection box
-    if (isAreaSelecting && isSelectMode) {
-      const rect = modelContainer.getBoundingClientRect();
-      const currentX = e.clientX - rect.left;
-      const currentY = e.clientY - rect.top;
-      updateSelectionBox(currentX, currentY);
-      return;
-    }
-
-    // Handle line drawing as usual
     if (!isDrawing || !currentLine || isSelectMode) return;
 
     const rect = modelContainer.getBoundingClientRect();
@@ -560,8 +439,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const dy = Math.abs(currentY - startY);
 
       if (dx > dy) {
+        // Make horizontal line
         currentY = startY;
       } else {
+        // Make vertical line
         currentX = startX;
       }
     }
@@ -580,30 +461,35 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   modelContainer.addEventListener("mouseup", function (e) {
-    if (isAreaSelecting && isSelectMode) {
-      selectLinesInBox();
-      isAreaSelecting = false;
-      return;
-    }
-
     if (!isDrawing || !currentLine || isSelectMode) return;
 
     const rect = modelContainer.getBoundingClientRect();
     let endX = e.clientX - rect.left;
     let endY = e.clientY - rect.top;
 
+    // If Ctrl is pressed, make the line straight (horizontal or vertical)
     if (isCtrlPressed) {
       const dx = Math.abs(endX - startX);
       const dy = Math.abs(endY - startY);
 
       if (dx > dy) {
+        // Make horizontal line
         endY = startY;
       } else {
+        // Make vertical line
         endX = startX;
       }
     }
 
-    lines.push({ startX, startY, endX, endY });
+    // Save the line data
+    lines.push({
+      startX: startX,
+      startY: startY,
+      endX: endX,
+      endY: endY,
+    });
+
+    // Re-render all lines
     renderLines();
 
     currentLine = null;
@@ -615,29 +501,12 @@ document.addEventListener("DOMContentLoaded", function () {
       (isSelectMode && e.target === modelContainer) ||
       e.target === linesContainer
     ) {
-      selectedLines = []; // Clear selected lines
-      removeSelectionBox(); // Remove selection box
+      selectedLines = [];
       renderLines();
     }
   });
   // Load saved lines on page load
   loadLines();
-  const styleSheet = document.createElement("style");
-  styleSheet.textContent = `
-  .selection-box {
-    position: absolute;
-    border: 1px dashed #007bff;
-    background-color: rgba(0, 123, 255, 0.1);
-    pointer-events: none;
-    z-index: 100;
-  }
-  
-  .drawn-line.selected {
-    background-color: #ff6b6b; /* Red color for selected line */
-  }
-`;
-  document.head.appendChild(styleSheet);
-
   //==========Chart Container================
   const ctx = document.getElementById("techChart").getContext("2d");
 
@@ -1450,19 +1319,16 @@ document.addEventListener("DOMContentLoaded", function () {
     renderAddedSymbols();
   }
   // Add Delete key support
-  // Track Ctrl key press - update this to change cursor
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Control") {
-      isCtrlPressed = true;
-      if (isSelectMode) {
-        modelContainer.style.cursor = "crosshair"; // Change cursor to indicate selection mode
-      }
-    }
-    // Add delete key support
-    if (e.key === "Delete" && selectedLines.length > 0) {
-      deleteSelected();
+    if (
+      e.key === "Delete" &&
+      isSymbolSelectMode &&
+      selectedSymbolsToRemove.length > 0
+    ) {
+      deleteSelectedSymbols();
     }
   });
+
   // Add CSS for selected symbols
   const styleElement = document.createElement("style");
   styleElement.textContent = `
