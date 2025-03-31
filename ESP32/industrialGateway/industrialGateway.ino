@@ -18,7 +18,7 @@
 #define DEFAULT_MQTT_HOST "mqtt1.eoh.io"
 
 // You should get Auth Token in the ERa App or ERa Dash board
-#define ERA_AUTH_TOKEN "5ea18106-e42b-4e03-91ab-2dd771ba1386"
+#define ERA_AUTH_TOKEN "71f399f7-d4e2-4e14-b0bf-28729dbf53cd"
 
 /* Define setting button */
 // #define BUTTON_PIN              0

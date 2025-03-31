@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let isAreaSelecting = false;
   let selectionBox = null;
   let selectedLinesFactory = [];
+  // Add missing isCtrlPressed variable declaration
+  let isCtrlPressed = false;
+  let lineGroup;
 
   window.addEventListener("load", () => {
     drawInstance = SVG("#drawing-area").size("100%", "100%");
@@ -208,6 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fill: "#FFFFFF",
       });
     });
+
     drawInstance.on("mouseup", () => {
       if (!drawingFactory) return;
 
@@ -215,26 +219,44 @@ document.addEventListener("DOMContentLoaded", function () {
         linesFactory.push(lineGroup);
         lineGroup.node.addEventListener("click", handleLineClick);
 
-        // Trích xuất tọa độ chính xác từ pathData
+        // Fix path data extraction
         const mainPath = lineGroup.findOne(".main-line");
-        const pathData = mainPath.array();
-        if (
-          pathData.length >= 2 &&
-          pathData[0][0] === "M" &&
-          pathData[1][0] === "L"
-        ) {
-          const startX = pathData[0][1]; // Tọa độ x của điểm bắt đầu
-          const startY = pathData[0][2]; // Tọa độ y của điểm bắt đầu
-          const endX = pathData[1][1]; // Tọa độ x của điểm kết thúc
-          const endY = pathData[1][2]; // Tọa độ y của điểm kết thúc
+
+        try {
+          // Access the path data directly instead of using array() method
+          const pathElement = mainPath.node;
+          const startX = startPoint.x;
+          const startY = startPoint.y;
+
+          // Get end point coordinates from the last circle
+          let endX, endY;
+          if (endCircle) {
+            const lastCircle = endCircle.first();
+            endX = lastCircle.attr("cx");
+            endY = lastCircle.attr("cy");
+          } else {
+            // Fallback if no end circle exists
+            const d = pathElement.getAttribute("d");
+            const match = d.match(/L\s*([0-9.-]+)\s*,?\s*([0-9.-]+)/);
+            if (match) {
+              endX = parseFloat(match[1]);
+              endY = parseFloat(match[2]);
+            } else {
+              // If we can't extract L coordinates, use startPoint as fallback
+              endX = startPoint.x;
+              endY = startPoint.y;
+            }
+          }
+
           const lineData = {
             start: { x: startX, y: startY },
             end: { x: endX, y: endY },
             hasStartCircle: isCapsLockOn,
           };
+
           saveLineToStorage(lineData);
-        } else {
-          console.error("Dữ liệu đường line không hợp lệ:", pathData);
+        } catch (err) {
+          console.error("Error saving line data:", err);
         }
       }
 
@@ -358,6 +380,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   }
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && currentMainPath) {
       if (lineGroup) {
@@ -373,27 +396,35 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (e.key === "Delete" && selectedLineFactory) {
-      // Lấy dữ liệu path chính xác
-      const mainPath = selectedLineFactory.findOne(".main-line");
-      const pathData = mainPath.array();
+      try {
+        // Fix path data extraction for Delete operation
+        const mainPath = selectedLineFactory.findOne(".main-line");
+        const pathElement = mainPath.node;
+        const d = pathElement.getAttribute("d");
 
-      // Sửa cách trích xuất tọa độ
-      const start = pathData[0];
-      const end = pathData[1];
-      const lineData = {
-        start: { x: start[1], y: start[2] }, // [1] và [2] là vị trí x,y của điểm M
-        end: { x: end[1], y: end[2] }, // [1] và [2] là vị trí x,y của điểm L
-        hasStartCircle: selectedLineFactory.findOne("circle[cx='6']") !== null,
-      };
+        // Parse the d attribute to extract start and end coordinates
+        const mMatch = d.match(/M\s*([0-9.-]+)\s*,?\s*([0-9.-]+)/);
+        const lMatch = d.match(/L\s*([0-9.-]+)\s*,?\s*([0-9.-]+)/);
 
-      removeLineFromStorage(lineData);
-      selectedLineFactory.remove();
+        if (mMatch && lMatch) {
+          const lineData = {
+            start: { x: parseFloat(mMatch[1]), y: parseFloat(mMatch[2]) },
+            end: { x: parseFloat(lMatch[1]), y: parseFloat(lMatch[2]) },
+            hasStartCircle: selectedLineFactory.findOne("circle") !== null,
+          };
 
-      // Cập nhật mảng linesFactory
-      const index = linesFactory.indexOf(selectedLineFactory);
-      if (index > -1) linesFactory.splice(index, 1);
+          removeLineFromStorage(lineData);
+          selectedLineFactory.remove();
 
-      selectedLineFactory = null;
+          // Cập nhật mảng linesFactory
+          const index = linesFactory.indexOf(selectedLineFactory);
+          if (index > -1) linesFactory.splice(index, 1);
+
+          selectedLineFactory = null;
+        }
+      } catch (err) {
+        console.error("Error deleting line:", err);
+      }
     }
   });
 
@@ -409,6 +440,15 @@ document.addEventListener("DOMContentLoaded", function () {
       (lineFactory) => (lineFactory.node.style.cursor = cursorStyle)
     );
   });
+
+  // Add clear all functionality
+  if (clearAllButtonFactory) {
+    clearAllButtonFactory.addEventListener("click", () => {
+      linesFactory.forEach((line) => line.remove());
+      linesFactory = [];
+      clearAllLinesFromStorage();
+    });
+  }
 });
 
 /*==============Gauge==========*/
