@@ -19,8 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentMiddlePathFactory;
   let isSelectModeFactory = false;
   let selectedLineFactory = null;
-  let isAreaSelectingFactory = false;
-  let selectionBoxFactory = null;
   let selectedLinesFactoryArray = [];
   // Add missing isCtrlPressed variable declaration
   let isCtrlPressedFactory = false;

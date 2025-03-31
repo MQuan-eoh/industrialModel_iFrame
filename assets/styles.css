@@ -885,11 +885,10 @@ body {
 }
 
 /*=========Full Screen Button=======*/
-/* Fullscreen button styles */
 .fullscreen-btn {
   position: fixed;
-  top: 15px;
-  right: 15px;
+  top: 35px;
+  right: 5px;
   z-index: 9999;
   background: linear-gradient(
     180deg,
@@ -1372,12 +1371,12 @@ canvas.health-chart {
 }
 
 #office-section {
-  bottom: 20px;
+  bottom: 80px;
   left: 20px;
 }
 
 #factory-section {
-  bottom: 20px;
+  bottom: 80px;
   right: 60px;
 }
 
